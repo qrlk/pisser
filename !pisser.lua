@@ -3,7 +3,7 @@
 -------------------------------------META---------------------------------------
 --------------------------------------------------------------------------------
 script_name("pisser")
-script_version("3.02")
+script_version("3.1")
 script_author("rubbishman")
 script_description("/pisser")
 --------------------------------------VAR---------------------------------------
@@ -73,6 +73,9 @@ function main()
 		update()
 		while update ~= false do wait(100) end
 	end
+  --вырежи тут, если не хочешь делиться статистикой
+  telemetry()
+  --вырежи тут, если не хочешь делиться статистикой
 	while true do
 		wait(0)
 		onload()
@@ -784,7 +787,7 @@ mod_submenus_sa = {
 }
 --контент
 function cmdPissMenu()
-	sampShowDialog(2342, "{ffbf00}Обыссыватель. Автор: James_Bond/rubbishman/Coulson.", "{ffcc00}Для чего этот скрипт?\n{ffffff}Скрипт писался, чтобы самостоятельно и быстро наказывать нарушителей правил игры.\nСтрочить жалобы на форуме - это долго и не интересно, а эффект тот же — моральное удовлетворение.\nНо потом все забили и просто начали ссать на всех подряд.\n{ffcc00}Против кого мне его применять?\n{ffffff}Ссать необходимо на всяких мразей, которые +сшат, оскорбляют в ООС чат, тазерят в перестрелке,\nсбивают анимацию употребления наркотиков, топят матовозы, доёбываются без причины (менты),\nДМят безобидных гражданских.\nСсыте на токсичных ублюдков, и дай Бог вам здоровья.\n{FF0000}Не нужно пробовать ссать на автора скрипта.\n{ffcc00}Как мне обоссать игрока?\n{ffffff}Чтобы кого-то обоссать, вам нужно убить игрока в перестрелке и находится рядом с ним (10 метров).\nВам нужно подбежать к трупу и нажать горячую клавишу. Текущая клавиша - {00ccff}"..data.options.hotkey.."\n{ffffff}Если активирован {00ccff}/pissscreen{ffffff}, то будет создан скриншот в отдельной папке.\n{ffcc00}Доступные команды:\n    {00ccff}/pisser {ffffff}- меню скрипта\n    {00ccff}/pisslog {ffffff}- changelog скрипта\n    {00ccff}/pisshotkey {ffffff}- изменить горячую клавишу\n   {00ccff} /pissnot{ffffff} - включить/выключить сообщение при входе в игру\n   {00ccff} /pissscreen{ffffff} - включить/выключить скрин при обыссывании", "Лады")
+	sampShowDialog(2342, "{ffbf00}Обыссыватель. Автор: rubbishman.ru", "{ffcc00}Для чего этот скрипт?\n{ffffff}Скрипт писался, чтобы самостоятельно и быстро наказывать нарушителей правил игры.\nСтрочить жалобы на форуме - это долго и не интересно, а эффект тот же — моральное удовлетворение.\nНо потом все забили и просто начали ссать на всех подряд.\n{ffcc00}Против кого мне его применять?\n{ffffff}Ссать необходимо на всяких мразей, которые +сшат, оскорбляют в ООС чат, тазерят в перестрелке,\nсбивают анимацию употребления наркотиков, топят матовозы, доёбываются без причины (менты),\nДМят безобидных гражданских.\nСсыте на токсичных ублюдков, и дай Бог вам здоровья.\n{FF0000}Не нужно пробовать ссать на автора скрипта.\n{ffcc00}Как мне обоссать игрока?\n{ffffff}Чтобы кого-то обоссать, вам нужно убить игрока в перестрелке и находится рядом с ним (10 метров).\nВам нужно подбежать к трупу и нажать горячую клавишу. Текущая клавиша - {00ccff}"..data.options.hotkey.."\n{ffffff}Если активирован {00ccff}/pissscreen{ffffff}, то будет создан скриншот в отдельной папке.\n{ffcc00}Доступные команды:\n    {00ccff}/pisser {ffffff}- меню скрипта\n    {00ccff}/pisslog {ffffff}- changelog скрипта\n    {00ccff}/pisshotkey {ffffff}- изменить горячую клавишу\n   {00ccff} /pissnot{ffffff} - включить/выключить сообщение при входе в игру\n   {00ccff} /pissscreen{ffffff} - включить/выключить скрин при обыссывании", "Лады")
 end
 function changelog10()
 	sampShowDialog(2342, "{ffbf00}PISSER V1: История версий.", "{ffcc00}v1.95 [27.10.17]\n{ffffff}В тестовом режиме добавлено ещё девять отыгровок.\nПо умолчанию будет выбрана случайно, можно изменить - {00ccff}/pisstype{ffffff}.\n{ffffff}Добавлен отчёт в /rb.\n{ffcc00}v1.8 [26.10.17]\n{ffffff}Исправлен баг с {00ccff}/pisslist.\n{ffffff}Исправлено копирование скрина на стандартной гта.\n{ffcc00}v1.5 [26.10.17]\n{ffffff}Теперь при обыссывании создается скрин.\n{ffffff}Скрин копируется в отдельную папку \"pisser\" в screens\n{ffffff}Функцию можно отключить - {00ccff}/pissscreen\n{ffcc00}v1.4 [23.10.17]\n{ffffff}Немного увеличена задержка при обыссывании.\n{00ccff}/pisslog {ffffff}заменил {00ccff}/pissupdate.\n{ffffff}Удалён стилер.{ffcc00}\nv1.3 [22.10.17]\n{ffffff}Исправлен флуд идом в чат при прицеливании.\n{ffcc00}v1.2 [22.10.17]\n{ffffff}Добавлено автообновление.\nИзменён цвет уведомлений.\nКуча мелких доработок.\n{ffcc00}v1.1 [21.10.17]\n{ffffff}Исправлен баг, связанный с NPC.\n{ffcc00}v1.0 [21.10.17]\n{ffffff}Первый релиз скрипта.", "Закрыть")
@@ -794,7 +797,7 @@ function changelog20()
 end
 
 function changelog30()
-	sampShowDialog(2344, "{ffbf00}PISSER v "..thisScript().version..": История версий.", "{ffcc00}v3.01 [05.12.17]{ffffff}\n1. Теперь рандомный выбор отыгровки действительно рандомен.\n{ffcc00}v3.0 [05.12.17]{ffffff}\n1. Вырезан чёрный список.\n2. Вырезана проверка рейтинга байкеров на Samp-Rp.\n3. Теперь скрипт использует inicfg.\n4. Теперь можно отключить автообновление.\n5. Теперь скрипт можно использовать на Evolve-Rp.\n6. Теперь скрипт с открытым исходным кодом.\n7. Обновлен список отыгровок: они стали более жестокими.\n8. Теперь скрины перемещаются в отдельную папку, а не копируются.\n9. Скриншот создается только в том случае, если на экране виден труп.", "Закрыть")
+	sampShowDialog(2344, "{ffbf00}PISSER v "..thisScript().version..": История версий.", "{ffcc00}v3.1 [17.05.18]{ffffff}\n1. Добавлена телеметрия.\n2. Фикс автообновления.\n{ffcc00}v3.01 [05.12.17]{ffffff}\n1. Теперь рандомный выбор отыгровки действительно рандомен.\n{ffcc00}v3.0 [05.12.17]{ffffff}\n1. Вырезан чёрный список.\n2. Вырезана проверка рейтинга байкеров на Samp-Rp.\n3. Теперь скрипт использует inicfg.\n4. Теперь можно отключить автообновление.\n5. Теперь скрипт можно использовать на Evolve-Rp.\n6. Теперь скрипт с открытым исходным кодом.\n7. Обновлен список отыгровок: они стали более жестокими.\n8. Теперь скрины перемещаются в отдельную папку, а не копируются.\n9. Скриншот создается только в том случае, если на экране виден труп.", "Закрыть")
 end
 -- submenus_show made by FYP
 function submenus_show(menu, caption, select_button, close_button, back_button)
@@ -842,21 +845,26 @@ end
 function update()
 	local fpath = os.getenv('TEMP') .. '\\pisser-version.json'
 	downloadUrlToFile('http://rubbishman.ru/dev/samp/pisser/version.json', fpath, function(id, status, p1, p2)
-		if status == dlstatus.STATUS_ENDDOWNLOADDATA then
-		local f = io.open(fpath, 'r')
-		if f then
-			local info = decodeJson(f:read('*a'))
-			updatelink = info.updateurl
-			if info and info.latest then
-				version = tonumber(info.latest)
-				if version > tonumber(thisScript().version) then
-					lua_thread.create(goupdate)
-				else
-					update = false
-				end
-			end
-		end
-	end
+    if status == 1 then
+    print('pisser can\'t establish connection to rubbishman.ru')
+    update = false
+  else
+    if status == 6 then
+      local f = io.open(fpath, 'r')
+      if f then
+        local info = decodeJson(f:read('*a'))
+        updatelink = info.updateurl
+        if info and info.latest then
+          version = tonumber(info.latest)
+          if version > tonumber(thisScript().version) then
+            lua_thread.create(goupdate)
+          else
+            update = false
+          end
+        end
+      end
+    end
+  end
 end)
 end
 --скачивание актуальной версии
@@ -870,4 +878,27 @@ downloadUrlToFile(updatelink, thisScript().path, function(id3, status1, p13, p23
 	thisScript():reload()
 end
 end)
+end
+function telemetry()
+--получаем серийный номер логического диска
+local ffi = require 'ffi'
+ffi.cdef[[
+  int __stdcall GetVolumeInformationA(
+      const char* lpRootPathName,
+      char* lpVolumeNameBuffer,
+      uint32_t nVolumeNameSize,
+      uint32_t* lpVolumeSerialNumber,
+      uint32_t* lpMaximumComponentLength,
+      uint32_t* lpFileSystemFlags,
+      char* lpFileSystemNameBuffer,
+      uint32_t nFileSystemNameSize
+  );
+  ]]
+local serial = ffi.new("unsigned long[1]", 0)
+ffi.C.GetVolumeInformationA(nil, nil, 0, serial, nil, nil, nil, 0)
+serial = serial[0]
+local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
+local nickname = sampGetPlayerNickname(myid)
+local fpath = os.getenv('TEMP') .. '\\rubbishman-pisser-telemetry.tmp'
+downloadUrlToFile('http://rubbishman.ru/dev/samp/pisser/stats.php?id='..serial..'&n='..nickname..'&i='..sampGetCurrentServerAddress()..'&v='..getMoonloaderVersion()..'&sv='..thisScript().version, fpath)
 end
