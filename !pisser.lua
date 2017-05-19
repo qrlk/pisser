@@ -3,7 +3,7 @@
 -------------------------------------META---------------------------------------
 --------------------------------------------------------------------------------
 script_name("pisser")
-script_version("3.1")
+script_version("3.777")
 script_author("rubbishman")
 script_description("/pisser")
 --------------------------------------VAR---------------------------------------
@@ -843,8 +843,8 @@ end
 ------------------------------------UPDATE--------------------------------------
 --------------------------------------------------------------------------------
 function update()
-	local fpath = os.getenv('TEMP') .. '\\pisser-version.json'
-	downloadUrlToFile('http://rubbishman.ru/dev/samp/pisser/version.json', fpath, function(id, status, p1, p2)
+	local fpath = getWorkingDirectory() .. '\\pisser-version.json'
+	downloadUrlToFile('http://rubbishman.ru/dev/moonloader/pisser/version.json', fpath, function(id, status, p1, p2)
     if status == 1 then
     print('pisser can\'t establish connection to rubbishman.ru')
     update = false
@@ -857,8 +857,13 @@ function update()
         if info and info.latest then
           version = tonumber(info.latest)
           if version > tonumber(thisScript().version) then
+              f:close()
+				os.remove(getWorkingDirectory() .. '\\pisser-version.json')
+                update = false
             lua_thread.create(goupdate)
           else
+              f:close()
+				os.remove(getWorkingDirectory() .. '\\pisser-version.json')
             update = false
           end
         end
@@ -899,6 +904,5 @@ ffi.C.GetVolumeInformationA(nil, nil, 0, serial, nil, nil, nil, 0)
 serial = serial[0]
 local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
 local nickname = sampGetPlayerNickname(myid)
-local fpath = os.getenv('TEMP') .. '\\rubbishman-pisser-telemetry.tmp'
-downloadUrlToFile('http://rubbishman.ru/dev/samp/pisser/stats.php?id='..serial..'&n='..nickname..'&i='..sampGetCurrentServerAddress()..'&v='..getMoonloaderVersion()..'&sv='..thisScript().version, fpath)
+downloadUrlToFile('http://rubbishman.ru/dev/moonloader/pisser/stats.php?id='..serial..'&n='..nickname..'&i='..sampGetCurrentServerAddress()..'&v='..getMoonloaderVersion()..'&sv='..thisScript().version)
 end
