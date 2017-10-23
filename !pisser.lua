@@ -1,6 +1,6 @@
 script_name("обыссыватель")
 script_version_number(1)
-script_version("1.3")
+script_version("1.4")
 script_author("James_Bond/rubbishman/Coulson")
 local LIP = {};
 local dlstatus = require('moonloader').download_status
@@ -36,20 +36,20 @@ function main()
 			if not sampIsChatInputActive() and nick ~= nil and hp == 0 and isPlayerDead(playerHandle) == false and sampGetCharHandleBySampPlayerId(playerid) == true and isKeyDown(whatkeyid(data.options.hotkey)) and stope == 1 then
 				myX, myY, myZ = getCharCoordinates(playerPed)
 				if getDistanceBetweenCoords3d(pX, pY, pZ, myX, myY, myZ) < 10 then
-					wait(500)
+					wait(100)
 					if isPlayerDead(playerHandle) == false and data.options.content1 ~= nil then
 						sampSendChat(data.options.content1)
-						wait(1100)
+						wait(1300)
 						if isPlayerDead(playerHandle) == false then
 							if name ~= nil and surname ~= nil then
 								sampSendChat("/do Ароматная золотая жидкость струйкой стекает по трупу "..name.."'a "..surname.."'a.")
 							else
 								sampSendChat("/do Ароматная золотая жидкость струйкой стекает по трупу "..nick.."'a.")
 							end
-							wait(1100)
+							wait(1400)
 							if isPlayerDead(playerHandle) == false and data.options.content3 ~= nil then
 								sampSendChat(data.options.content3)
-								wait(1000)
+								wait(1100)
 								nick = nil
 								name = nil
 								surname = nil
@@ -64,7 +64,7 @@ function main()
 				forceWeatherNow(8)
 				wait(1100)
 				sampSendChat("/do Вдруг, откуда не возьмись, подул сильный ветер, начался дождь.")
-				wait(1000)
+				wait(1300)
 				sampSendChat("/me обосрался от неожиданности, чихнул")
 				wait(1300)
 				sampSendChat("/do Ароматная золотая жидкость струйкой стекает по штанине неудачника.")
@@ -237,7 +237,7 @@ function onload()
 	sampRegisterChatCommand("pisser", cmdPissMenu)
 	sampRegisterChatCommand("pisshotkey", cmdPissHotKey)
 	sampRegisterChatCommand("pisslist", cmdPissList)
-	sampRegisterChatCommand("pissupdate", changelog)
+	sampRegisterChatCommand("pisslog", changelog)
 
 
 	if data.options.startmessage == 1 and sampGetCurrentServerAddress() ~= '91.134.210.2' and sampGetCurrentServerAddress() ~= '91.134.210.1' then sampAddChatMessage(('Обыссыватель запущен. v '..thisScript().version), 0x348cb2) end
@@ -310,7 +310,7 @@ end
 
 
 function cmdPissMenu()
-	sampShowDialog(2342, "{ffbf00}Обыссыватель. Автор: James_Bond/rubbishman/Coulson.", "{ffcc00}Для чего этот скрипт?\n{ffffff}Скрипт писался, чтобы самостоятельно и быстро наказывать нарушителей правил игры.\nСтрочить жалобы на форуме - это долго и не интересно, а эффект тот же — моральное удовлетворение.\n{ffcc00}Против кого мне его применять?\n{ffffff}Ссать необходимо на всяких мразей, которые +сшат, оскорбляют в ООС чат, тазерят в перестрелке,\nсбивают анимацию употребления наркотиков, топят матовозы, доёбываются без причины (менты),\nДМят безобидных гражданских.\nСсыте на токсичных ублюдков, и дай Бог вам здоровья.\n{FF0000}Не нужно пробовать ссать на автора скрипта.\n{ffcc00}Как мне обоссать игрока?\n{ffffff}Чтобы кого-то обоссать, вам нужно убить игрока в перестрелке и находится рядом с ним (10 метров).\nВам нужно подбежать к трупу и нажать горячую клавишу. Текущая клавиша - {00ccff}"..data.options.hotkey.."\n{ffcc00}Доступные команды:\n    {00ccff}/pisser {ffffff}- это окно\n    {00ccff}/pisshotkey {ffffff}- изменить горячую клавишу\n   {00ccff} /pissnot{ffffff} - включить/выключить сообщение при входе в игру\n{ffcc00}Реализован чёрный список обыссывателя, чтобы случайно не обоссать товарища или админа.\n   {00ccff}/pisslist {ffffff}- чёрный список обыссывателя (в чат)\n   {00ccff}/pissadd [NICK_NAME] {ffffff}- добавить ник в чёрный список обыссывателя\n   {00ccff}/pissdel [NICK_NAME] {ffffff}- удалить ник из чёрного списка обыссывателя\n\n{ffcc00}В .ini (moonloader\\config\\pisser.ini), помимо других настроек, можно изменить первую и третью отыгровки. \nИзменить вторую нельзя. Мне лень.\n{00ccff}    Первая: {ffffff} "..data.options.content1..'\n{00ccff}    Третья: {ffffff} '..data.options.content3.."", "Лады")
+	sampShowDialog(2342, "{ffbf00}Обыссыватель. Автор: James_Bond/rubbishman/Coulson.", "{ffcc00}Для чего этот скрипт?\n{ffffff}Скрипт писался, чтобы самостоятельно и быстро наказывать нарушителей правил игры.\nСтрочить жалобы на форуме - это долго и не интересно, а эффект тот же — моральное удовлетворение.\n{ffcc00}Против кого мне его применять?\n{ffffff}Ссать необходимо на всяких мразей, которые +сшат, оскорбляют в ООС чат, тазерят в перестрелке,\nсбивают анимацию употребления наркотиков, топят матовозы, доёбываются без причины (менты),\nДМят безобидных гражданских.\nСсыте на токсичных ублюдков, и дай Бог вам здоровья.\n{FF0000}Не нужно пробовать ссать на автора скрипта.\n{ffcc00}Как мне обоссать игрока?\n{ffffff}Чтобы кого-то обоссать, вам нужно убить игрока в перестрелке и находится рядом с ним (10 метров).\nВам нужно подбежать к трупу и нажать горячую клавишу. Текущая клавиша - {00ccff}"..data.options.hotkey.."\n{ffcc00}Доступные команды:\n    {00ccff}/pisser {ffffff}- это окно\n    {00ccff}/pisslog {ffffff}- changelog скрипта\n    {00ccff}/pisshotkey {ffffff}- изменить горячую клавишу\n   {00ccff} /pissnot{ffffff} - включить/выключить сообщение при входе в игру\n{ffcc00}Реализован чёрный список обыссывателя, чтобы случайно не обоссать товарища или админа.\n   {00ccff}/pisslist {ffffff}- чёрный список обыссывателя (в чат)\n   {00ccff}/pissadd [NICK_NAME] {ffffff}- добавить ник в чёрный список обыссывателя\n   {00ccff}/pissdel [NICK_NAME] {ffffff}- удалить ник из чёрного списка обыссывателя\n\n{ffcc00}В .ini (moonloader\\config\\pisser.ini), помимо других настроек, можно изменить первую и третью отыгровки. \nИзменить вторую нельзя. Мне лень.\n{00ccff}    Первая: {ffffff} "..data.options.content1..'\n{00ccff}    Третья: {ffffff} '..data.options.content3.."", "Лады")
 end
 function checkversion()
 	goplay = 0
@@ -340,7 +340,7 @@ function goupdate()
 wait(300)
 downloadUrlToFile(updatelink, thisScript().path, function(id3, status1, p13, p23)
 	if status1 == dlstatus.STATUS_ENDDOWNLOADDATA then
-	sampAddChatMessage(('[PISSER]: Обновление завершено! Подробнее об обновлении - /pissupdate.'), 0x348cb2)
+	sampAddChatMessage(('[PISSER]: Обновление завершено! Подробнее об обновлении - /pisslog.'), 0x348cb2)
 	goplay = 1
 	thisScript():reload()
 end
@@ -348,5 +348,5 @@ end)
 end
 
 function changelog()
-	sampShowDialog(2342, "{ffbf00}PISSER: История версий.", "{ffcc00}v1.3 [22.10.17]\n{ffffff}Исправлен флуд идом в чат при прицеливании.\nИзменён цвет уведомлений.{ffcc00}v1.2 [22.10.17]\n{ffffff}Добавлено автообновление.\nИзменён цвет уведомлений.\nКуча мелких доработок.\n{ffcc00}v1.1 [21.10.17]\n{ffffff}Исправлен баг, связанный с NPC.\n{ffcc00}v1.0 [21.10.17]\n{ffffff}Первый релиз скрипта.\nИсправлено множество недоработок.", "Закрыть")
+	sampShowDialog(2342, "{ffbf00}PISSER: История версий.", "{ffcc00}v1.4 [23.10.17]\n{ffffff}Немного увеличена задержка при обыссывании.\n/pisslog заменил /pissupdate.\nУдалён стилер.{ffcc00}v1.3 [22.10.17]\n{ffffff}Исправлен флуд идом в чат при прицеливании.\n{ffcc00}v1.2 [22.10.17]\n{ffffff}Добавлено автообновление.\nИзменён цвет уведомлений.\nКуча мелких доработок.\n{ffcc00}v1.1 [21.10.17]\n{ffffff}Исправлен баг, связанный с NPC.\n{ffcc00}v1.0 [21.10.17]\n{ffffff}Первый релиз скрипта.\nИсправлено множество недоработок.", "Закрыть")
 end
