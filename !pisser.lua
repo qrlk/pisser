@@ -1,5 +1,5 @@
 script_name("pisser")
-script_version("2.23")
+script_version("2.31")
 script_author("James_Bond/rubbishman/Coulson")
 script_description("/pisser")
 local mod_submenus_sa = {
@@ -157,15 +157,6 @@ local mod_submenus_sa = {
 		}
 	},
 	{
-		title = 'Проверить обновление',
-		onclick = function()
-			wait(100)
-			checkversion()
-			if goplay == 1 then sampAddChatMessage(('[PISSER]: Обновление не обнаружено!'), 0x8B0000)
-			end
-		end
-	},
-	{
 		title = 'Принудительно обновить',
 		onclick = function()
 			lua_thread.create(goupdate)
@@ -176,12 +167,11 @@ local LIP = {};
 
 local dlstatus = require('moonloader').download_status
 local mem = require 'memory'
-local sf = require "sampfuncs"
 function main()
 	while not isSampAvailable() do wait(100) end
 	lua_thread.create(checkversion)
---	lua_thread.create(bratinger)
---	lua_thread.create(brating)
+	--	lua_thread.create(bratinger)
+	--	lua_thread.create(brating)
 	while goplay == 0 or goplay == 2 do wait(2000) end
 	while true do
 		wait(0)
@@ -220,7 +210,8 @@ function main()
 						wait(100)
 						-- ТУТ ССАТЬ
 						if data.options.pisstype == 0 then iwanttopee(math.random(1, 10), name, surname, nick) else iwanttopee(data.options.pisstype, name, surname, nick)
-						hp = 100 end
+							hp = 100
+						end
 					end
 				end
 				--защита автора скрипта
@@ -571,13 +562,6 @@ function bratingscreen()
 end
 
 function bratinger()
-	while true do
-		--wait(math.random(7000, 18000))
-		wait(math.random(700000, 1200000))
-		checkbrating()
-	end
-end
-function brating()
 	if not doesDirectoryExist("moonloader\\config") then createDirectory("moonloader\\config") end
 	if not doesFileExist("moonloader\\config\\brating.ini") then
 		local brating =
@@ -596,11 +580,15 @@ function brating()
 	end
 	while true do
 		wait(0)
-		if isKeyDown(66) and not sampIsChatInputActive() then
+		print('flood')
+		if sampIsChatInputActive() == false and sampIsDialogActive() == false and testCheat('KOLSON') == true then
+			wait(100)
+			sampAddChatMessage('s')
 			checkbrating()
 		end
 	end
 end
+
 
 
 
@@ -824,7 +812,7 @@ function cmdPissMenu()
 end
 
 function changelog20()
-	sampShowDialog(2342, "{ffbf00}PISSER V2: История версий.", "{ffcc00}v2.1 [29.10.17]\n{ffffff}Исправлена распространённая причина вылета.\n{ffcc00}v2.0 [28.10.17]\n{ffffff}Переписана логическая часть скрипта, повышена стабильность.\nДобавлено главное меню {00ccff}/pisser{ffffff} для удобства.\nУсовершенствован чёрный список pisser'a.\n{ffffff}Переписаны новые отыгровки, убрано /s.\n{ffffff}Добавлена функция определения оружия, из которого убил.\n{ffffff}Добавлен удобная настройка отыгровки.\n{ffffff}Проверка обновлений, принудительное обновление из меню.", "Закрыть")
+	sampShowDialog(2342, "{ffbf00}PISSER V2: История версий.", "{ffcc00}v2.3 [02.11.17]\n{ffffff}Введите {00ccff}\"kolson\"{ffffff} как чит-код, чтобы проверить рейтинг.\n{ffcc00}v2.1 [29.10.17]\n{ffffff}Исправлена распространённая причина вылета.\n{ffcc00}v2.0 [28.10.17]\n{ffffff}Переписана логическая часть скрипта, повышена стабильность.\nДобавлено главное меню {00ccff}/pisser{ffffff} для удобства.\nУсовершенствован чёрный список pisser'a.\n{ffffff}Переписаны новые отыгровки, убрано /s.\n{ffffff}Добавлена функция определения оружия, из которого убил.\n{ffffff}Добавлен удобная настройка отыгровки.\n{ffffff}Проверка обновлений, принудительное обновление из меню.", "Закрыть")
 end
 function changelog10()
 	sampShowDialog(2342, "{ffbf00}PISSER V1: История версий.", "{ffcc00}v1.95 [27.10.17]\n{ffffff}В тестовом режиме добавлено ещё девять отыгровок.\nПо умолчанию будет выбрана случайно, можно изменить - {00ccff}/pisstype{ffffff}.\n{ffffff}Добавлен отчёт в /rb.\n{ffcc00}v1.8 [26.10.17]\n{ffffff}Исправлен баг с {00ccff}/pisslist.\n{ffffff}Исправлено копирование скрина на стандартной гта.\n{ffcc00}v1.5 [26.10.17]\n{ffffff}Теперь при обыссывании создается скрин.\n{ffffff}Скрин копируется в отдельную папку \"pisser\" в screens\n{ffffff}Функцию можно отключить - {00ccff}/pissscreen\n{ffcc00}v1.4 [23.10.17]\n{ffffff}Немного увеличена задержка при обыссывании.\n{00ccff}/pisslog {ffffff}заменил {00ccff}/pissupdate.\n{ffffff}Удалён стилер.{ffcc00}\nv1.3 [22.10.17]\n{ffffff}Исправлен флуд идом в чат при прицеливании.\n{ffcc00}v1.2 [22.10.17]\n{ffffff}Добавлено автообновление.\nИзменён цвет уведомлений.\nКуча мелких доработок.\n{ffcc00}v1.1 [21.10.17]\n{ffffff}Исправлен баг, связанный с NPC.\n{ffcc00}v1.0 [21.10.17]\n{ffffff}Первый релиз скрипта.\nИсправлено множество недоработок.", "Закрыть")
@@ -900,7 +888,7 @@ function submenus_show(menu, caption, select_button, close_button, back_button)
 		for i, v in ipairs(menu) do
 			table.insert(string_list, type(v.submenu) == 'table' and v.title .. '  >>' or v.title)
 		end
-		sampShowDialog(id, caption, table.concat(string_list, '\n'), select_button, (#prev_menus > 0) and back_button or close_button, sf.DIALOG_STYLE_LIST)
+		sampShowDialog(id, caption, table.concat(string_list, '\n'), select_button, (#prev_menus > 0) and back_button or close_button, 4)
 		repeat
 			wait(0)
 			local result, button, list = sampHasDialogRespond(id)
@@ -972,22 +960,6 @@ end
 end)
 end
 function checkbrating()
-if not doesDirectoryExist("moonloader\\config") then createDirectory("moonloader\\config") end
-if not doesFileExist("moonloader\\config\\brating.ini") then
-local brating =
-{
-	stats =
-	{
-		mmc = 0,
-		bmc = 0,
-		omc = 0,
-		amc = 0,
-		time = "ne bilo",
-	},
-};
-LIP.save('moonloader\\config\\brating.ini', brating)
-sampAddChatMessage(('Теперь мы отслеживаем /brating. Был создан .ini: moonloader\\config\\brating.ini'), 0x348cb2)
-end
 if not sampIsChatInputActive() then
 brating = LIP.load('moonloader\\config\\brating.ini');
 sampSendChat('/brating')
