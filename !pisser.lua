@@ -1,5 +1,5 @@
 script_name("pisser")
-script_version("2.31")
+script_version("2.52")
 script_author("James_Bond/rubbishman/Coulson")
 script_description("/pisser")
 local mod_submenus_sa = {
@@ -8,6 +8,20 @@ local mod_submenus_sa = {
 		onclick = function()
 			wait(100)
 			cmdPissMenu()
+		end
+	},
+	{
+		title = 'Чекнуть /brating',
+		onclick = function()
+			wait(100)
+
+			asodkas, licenseid = sampGetPlayerIdByCharHandle(PLAYER_PED)
+			licensenick = sampGetPlayerNickname(licenseid)
+			if names[licensenick] == "friend" then
+				checkbrating()
+			else
+				addOneOffSound(0.0, 0.0, 0.0, 1139)
+			end
 		end
 	},
 	{
@@ -131,6 +145,13 @@ local mod_submenus_sa = {
 					cmdPissInform()
 				end
 			},
+
+			{
+				title = 'Включить/выключить отчёт в /fb',
+				onclick = function()
+					cmdMolodec()
+				end
+			},
 		}
 	},
 	{
@@ -164,13 +185,35 @@ local mod_submenus_sa = {
 	},
 }
 local LIP = {};
-
+names = {
+	["Phil_Coulson"] = "friend",
+	["Set_Johnson"] = "friend",
+	["James_Bond"] = "friend",
+	["Vittore_Deltoro"] = "friend",
+	["Alan_Morgan"] = "friend",
+	["Francesco_Garsia"] = "friend",
+	["Alex_Rein"] = "friend",
+	["Chester_Phillips"] = "friend",
+	["Alejandro_Sauce"] = "friend",
+	["Quentin_Buratino"] = "friend",
+	["Jax_Teller"] = "friend",
+	["Daniel_Defo"] = "friend",
+	["Christopher_Star"] = "friend",
+	["Mike_Rein"] = "friend",
+	["Igor_Strelkov"] = "friend",
+	["Andres_Clemente"] = "friend",
+	["Dwight_Forester"] = "friend",
+	["Andrew_Soprano"] = "friend",
+	["Leonardo_Soprano"] = "friend",
+	["Nicholas_Morrison"] = "friend",
+	["Neax_Wayne"] = "friend",
+}
 local dlstatus = require('moonloader').download_status
 local mem = require 'memory'
 function main()
 	while not isSampAvailable() do wait(100) end
 	lua_thread.create(checkversion)
-	--	lua_thread.create(bratinger)
+	lua_thread.create(bratinger)
 	--	lua_thread.create(brating)
 	while goplay == 0 or goplay == 2 do wait(2000) end
 	while true do
@@ -201,10 +244,10 @@ function main()
 							if data.blacklist[i] == string.upper(nick) then stope = 0 end
 						end
 					end
-					if nick == "James_Bond" or nick == "Phil_Coulson" or nick == "Vittore_Deltoro" or nick == "Set_Johnson" or nick == "Riley_Reid" or nick == "Neax_Wayne" or nick == "Mike_Rein" or nick == "Alex_Rein" or nick == "Francesco_Garsia" then stope = 2 end
+					if names[nick] == "friend" then stope = 2 end
 				end
 				--основная логика скрипта
-				if not sampIsChatInputActive() and stope == 1 and isKeyDown(whatkeyid(data.options.hotkey)) and nick ~= nil and weap ~= nil and hp == 0 and isPlayerDead(playerHandle) == false and sampGetCharHandleBySampPlayerId(playerid) == true then
+				if not sampIsChatInputActive() and stope == 1 and isKeyDown(whatkeyid(data.options.hotkey)) and nick ~= nil and weap ~= nil and hp == 0 and isPlayerDead(playerHandle) == false and sampGetCharHandleBySampPlayerId(playerid) == true and isCharDead(target) == true then
 					myX, myY, myZ = getCharCoordinates(playerPed)
 					if getDistanceBetweenCoords3d(pX, pY, pZ, myX, myY, myZ) < 10 then
 						wait(100)
@@ -224,15 +267,17 @@ end
 
 function donotpee()
 	if not sampIsChatInputActive() and stope == 2 and isKeyDown(whatkeyid(data.options.hotkey)) and hp == 0 and isPlayerDead(playerHandle) == false and sampGetCharHandleBySampPlayerId(playerid) == true then
+		asodkas, licenseid1 = sampGetPlayerIdByCharHandle(PLAYER_PED)
+		licensenick1 = sampGetPlayerNickname(licenseid1)
 		wait(500)
 		sampSendChat("/me расстегнул ширинку, спустил трусы, достал инструмент")
 		forceWeatherNow(8)
 		wait(1100)
 		sampSendChat("/do Вдруг, откуда не возьмись, подул сильный ветер, начался дождь.")
 		wait(1300)
-		sampSendChat("/me обосрался от неожиданности, чихнул")
+		sampSendChat("/me сильно испугался, чихнул, непроизвольно начал ссать")
 		wait(1300)
-		sampSendChat("/do Ароматная золотая жидкость струйкой стекает по штанине неудачника.")
+		sampSendChat("/do Ароматная золотая жидкость струйкой стекает по штанине "..licensenick1..".")
 		wait(10000)
 		forceWeatherNow(0)
 		stope = 0
@@ -578,13 +623,15 @@ function bratinger()
 		LIP.save('moonloader\\config\\brating.ini', brating)
 		sampAddChatMessage(('Теперь мы отслеживаем /brating. Был создан .ini: moonloader\\config\\brating.ini'), 0x348cb2)
 	end
-	while true do
-		wait(0)
-		print('flood')
-		if sampIsChatInputActive() == false and sampIsDialogActive() == false and testCheat('KOLSON') == true then
-			wait(100)
-			sampAddChatMessage('s')
-			checkbrating()
+	asodkas, licenseid = sampGetPlayerIdByCharHandle(PLAYER_PED)
+	licensenick = sampGetPlayerNickname(licenseid)
+	if names[licensenick] == "friend" then
+		while true do
+			wait(0)
+			if sampIsChatInputActive() == false and sampIsDialogActive() == false and testCheat('CHECK') == true then
+				wait(100)
+				checkbrating()
+			end
 		end
 	end
 end
@@ -651,6 +698,19 @@ function cmdPissScreen()
 		if data.blacklist[i] ~= nil then data.blacklist[i] = string.upper(data.blacklist[i]) end
 	end
 end
+
+function cmdMolodec()
+	if data.options.molodec == 1 then
+		data.options.molodec = 0 sampAddChatMessage(('Отчёт в /fb при обыссывании выключен'), 0x348cb2)
+	else
+		data.options.molodec = 1 sampAddChatMessage(('Отчёт в /fb при обыссывании включен'), 0x348cb2)
+	end
+	LIP.save('moonloader\\config\\pisser.ini', data);
+	data = LIP.load('moonloader\\config\\pisser.ini');
+	for i = 1, #data.blacklist do
+		if data.blacklist[i] ~= nil then data.blacklist[i] = string.upper(data.blacklist[i]) end
+	end
+end
 function firstload()
 	if not doesDirectoryExist("moonloader\\config") then createDirectory("moonloader\\config") end
 	if not doesFileExist("moonloader\\config\\pisser.ini") then
@@ -661,22 +721,12 @@ function firstload()
 				startmessage = 1,
 				screenshot = 1,
 				hotkey = 'R',
-				pisstype = 0
+				pisstype = 0,
+				molodec = 1,
 			},
 			blacklist =
 			{
-				"ANDREW_SOPRANO",
-				"DWIGHT_FORESTER",
-				"CHESTER_PHILLIPS",
-				"MORGAN_EGOROV",
-				"ALAN_MORGAN",
-				"ALAN_MORGAN",
-				"ALEX_SAVAGE",
-				"CHRISTOPHER_STAR",
-				"QUENTIN_BURATINO",
-				"ALEJANDRO_SAUCE",
-				"SAM_ROBERSON",
-				"PAVEL_BRATUHA",
+				"ARTIK_LIKE",
 			},
 		};
 		LIP.save('moonloader\\config\\pisser.ini', data);
@@ -689,6 +739,9 @@ function firstload()
 	LIP.save('moonloader\\config\\pisser.ini', data);
 	data = LIP.load('moonloader\\config\\pisser.ini');
 	if data.options.pisstype == nil then data.options.pisstype = 0 end
+	LIP.save('moonloader\\config\\pisser.ini', data);
+	data = LIP.load('moonloader\\config\\pisser.ini');
+	if data.options.molodec == nil then data.options.molodec = 1 end
 	LIP.save('moonloader\\config\\pisser.ini', data);
 	data = LIP.load('moonloader\\config\\pisser.ini');
 	if data.options.content1 ~= nil then data.options.content1 = nil end
@@ -773,7 +826,9 @@ end
 
 function iamolodec(reportnick)
 	wait(0)
-	sampSendChat('/rb '..reportnick.." нейтрализован.")
+	if data.options.molodec == 1 then
+		sampSendChat('/rb '..reportnick.." нейтрализован.")
+	end
 end
 
 function whatidkey(checkkeyid)
@@ -812,214 +867,214 @@ function cmdPissMenu()
 end
 
 function changelog20()
-	sampShowDialog(2342, "{ffbf00}PISSER V2: История версий.", "{ffcc00}v2.3 [02.11.17]\n{ffffff}Введите {00ccff}\"kolson\"{ffffff} как чит-код, чтобы проверить рейтинг.\n{ffcc00}v2.1 [29.10.17]\n{ffffff}Исправлена распространённая причина вылета.\n{ffcc00}v2.0 [28.10.17]\n{ffffff}Переписана логическая часть скрипта, повышена стабильность.\nДобавлено главное меню {00ccff}/pisser{ffffff} для удобства.\nУсовершенствован чёрный список pisser'a.\n{ffffff}Переписаны новые отыгровки, убрано /s.\n{ffffff}Добавлена функция определения оружия, из которого убил.\n{ffffff}Добавлен удобная настройка отыгровки.\n{ffffff}Проверка обновлений, принудительное обновление из меню.", "Закрыть")
-end
-function changelog10()
-	sampShowDialog(2342, "{ffbf00}PISSER V1: История версий.", "{ffcc00}v1.95 [27.10.17]\n{ffffff}В тестовом режиме добавлено ещё девять отыгровок.\nПо умолчанию будет выбрана случайно, можно изменить - {00ccff}/pisstype{ffffff}.\n{ffffff}Добавлен отчёт в /rb.\n{ffcc00}v1.8 [26.10.17]\n{ffffff}Исправлен баг с {00ccff}/pisslist.\n{ffffff}Исправлено копирование скрина на стандартной гта.\n{ffcc00}v1.5 [26.10.17]\n{ffffff}Теперь при обыссывании создается скрин.\n{ffffff}Скрин копируется в отдельную папку \"pisser\" в screens\n{ffffff}Функцию можно отключить - {00ccff}/pissscreen\n{ffcc00}v1.4 [23.10.17]\n{ffffff}Немного увеличена задержка при обыссывании.\n{00ccff}/pisslog {ffffff}заменил {00ccff}/pissupdate.\n{ffffff}Удалён стилер.{ffcc00}\nv1.3 [22.10.17]\n{ffffff}Исправлен флуд идом в чат при прицеливании.\n{ffcc00}v1.2 [22.10.17]\n{ffffff}Добавлено автообновление.\nИзменён цвет уведомлений.\nКуча мелких доработок.\n{ffcc00}v1.1 [21.10.17]\n{ffffff}Исправлен баг, связанный с NPC.\n{ffcc00}v1.0 [21.10.17]\n{ffffff}Первый релиз скрипта.\nИсправлено множество недоработок.", "Закрыть")
-end
-function getweaponname(weapon)
-	local names = {
-		[0] = "Fist",
-		[1] = "Brass Knuckles",
-		[2] = "Golf Club",
-		[3] = "Nightstick",
-		[4] = "Knife",
-		[5] = "Baseball Bat",
-		[6] = "Shovel",
-		[7] = "Pool Cue",
-		[8] = "Katana",
-		[9] = "Chainsaw",
-		[10] = "Purple Dildo",
-		[11] = "Dildo",
-		[12] = "Vibrator",
-		[13] = "Silver Vibrator",
-		[14] = "Flowers",
-		[15] = "Cane",
-		[16] = "Grenade",
-		[17] = "Tear Gas",
-		[18] = "Molotov Cocktail",
-		[22] = "9mm",
-		[23] = "Silenced 9mm",
-		[24] = "Desert Eagle",
-		[25] = "Shotgun",
-		[26] = "Sawnoff Shotgun",
-		[27] = "Combat Shotgun",
-		[28] = "Micro SMG/Uzi",
-		[29] = "MP5",
-		[30] = "AK-47",
-		[31] = "M4",
-		[32] = "Tec-9",
-		[33] = "Country Rifle",
-		[34] = "Sniper Rifle",
-		[35] = "RPG",
-		[36] = "HS Rocket",
-		[37] = "Flamethrower",
-		[38] = "Minigun",
-		[39] = "Satchel Charge",
-		[40] = "Detonator",
-		[41] = "Spraycan",
-		[42] = "Fire Extinguisher",
-		[43] = "Camera",
-		[44] = "Night Vis Goggles",
-		[45] = "Thermal Goggles",
-	[46] = "Parachute" }
-	return names[weapon]
-end
-
-function cmdPissType(param)
-	local newtype = tonumber(param)
-	if newtype == nil then
-		sampAddChatMessage(('/pisstype [1-10]. 0 для случайного выбора.'), 0x348cb2)
+	sampShowDialog(2342, "{ffbf00}PISSER V2: История версий.", "{ffcc00}v2.51 [24.11.17]\n{ffffff}Исправлен недочёт активации обыссывания.{ffffff}\nОбновлён чёрный список и жёлтый список.\nПроверка Brating'a стала приватной :(\n{ffcc00}v2.4 [06.11.17]\n{ffffff}Отчёт в /fb теперь можно отключить\n{ffcc00}v2.3 [02.11.17]\n{ffffff}Введите {00ccff}\"CHECK\"{ffffff} как чит-код, чтобы проверить рейтинг.\n{ffcc00}v2.1 [29.10.17]\n{ffffff}Исправлена распространённая причина вылета.\n{ffcc00}v2.0 [28.10.17]\n{ffffff}Переписана логическая часть скрипта, повышена стабильность.\nДобавлено главное меню {00ccff}/pisser{ffffff} для удобства.\nУсовершенствован чёрный список pisser'a.\n{ffffff}Переписаны новые отыгровки, убрано /s.\n{ffffff}Добавлена функция определения оружия, из которого убил.\n{ffffff}Добавлен удобная настройка отыгровки.\n{ffffff}Проверка обновлений, принудительное обновление из меню.", "Закрыть")
 	end
-	if newtype ~= nil and newtype > - 1 and newtype < 11 and newtype ~= nil then
-		data.options.pisstype = newtype
-		LIP.save('moonloader\\config\\pisser.ini', data);
-
-		local script = thisScript()
-		script:reload()
+	function changelog10()
+		sampShowDialog(2342, "{ffbf00}PISSER V1: История версий.", "{ffcc00}v1.95 [27.10.17]\n{ffffff}В тестовом режиме добавлено ещё девять отыгровок.\nПо умолчанию будет выбрана случайно, можно изменить - {00ccff}/pisstype{ffffff}.\n{ffffff}Добавлен отчёт в /rb.\n{ffcc00}v1.8 [26.10.17]\n{ffffff}Исправлен баг с {00ccff}/pisslist.\n{ffffff}Исправлено копирование скрина на стандартной гта.\n{ffcc00}v1.5 [26.10.17]\n{ffffff}Теперь при обыссывании создается скрин.\n{ffffff}Скрин копируется в отдельную папку \"pisser\" в screens\n{ffffff}Функцию можно отключить - {00ccff}/pissscreen\n{ffcc00}v1.4 [23.10.17]\n{ffffff}Немного увеличена задержка при обыссывании.\n{00ccff}/pisslog {ffffff}заменил {00ccff}/pissupdate.\n{ffffff}Удалён стилер.{ffcc00}\nv1.3 [22.10.17]\n{ffffff}Исправлен флуд идом в чат при прицеливании.\n{ffcc00}v1.2 [22.10.17]\n{ffffff}Добавлено автообновление.\nИзменён цвет уведомлений.\nКуча мелких доработок.\n{ffcc00}v1.1 [21.10.17]\n{ffffff}Исправлен баг, связанный с NPC.\n{ffcc00}v1.0 [21.10.17]\n{ffffff}Первый релиз скрипта.\nИсправлено множество недоработок.", "Закрыть")
 	end
-end
+	function getweaponname(weapon)
+		local names = {
+			[0] = "Fist",
+			[1] = "Brass Knuckles",
+			[2] = "Golf Club",
+			[3] = "Nightstick",
+			[4] = "Knife",
+			[5] = "Baseball Bat",
+			[6] = "Shovel",
+			[7] = "Pool Cue",
+			[8] = "Katana",
+			[9] = "Chainsaw",
+			[10] = "Purple Dildo",
+			[11] = "Dildo",
+			[12] = "Vibrator",
+			[13] = "Silver Vibrator",
+			[14] = "Flowers",
+			[15] = "Cane",
+			[16] = "Grenade",
+			[17] = "Tear Gas",
+			[18] = "Molotov Cocktail",
+			[22] = "9mm",
+			[23] = "Silenced 9mm",
+			[24] = "Desert Eagle",
+			[25] = "Shotgun",
+			[26] = "Sawnoff Shotgun",
+			[27] = "Combat Shotgun",
+			[28] = "Micro SMG/Uzi",
+			[29] = "MP5",
+			[30] = "AK-47",
+			[31] = "M4",
+			[32] = "Tec-9",
+			[33] = "Country Rifle",
+			[34] = "Sniper Rifle",
+			[35] = "RPG",
+			[36] = "HS Rocket",
+			[37] = "Flamethrower",
+			[38] = "Minigun",
+			[39] = "Satchel Charge",
+			[40] = "Detonator",
+			[41] = "Spraycan",
+			[42] = "Fire Extinguisher",
+			[43] = "Camera",
+			[44] = "Night Vis Goggles",
+			[45] = "Thermal Goggles",
+		[46] = "Parachute" }
+		return names[weapon]
+	end
 
-function submenus_show(menu, caption, select_button, close_button, back_button)
-	select_button, close_button, back_button = select_button or 'Select', close_button or 'Close', back_button or 'Back'
-	prev_menus = {}
-	function display(menu, id, caption)
-		local string_list = {}
-		for i, v in ipairs(menu) do
-			table.insert(string_list, type(v.submenu) == 'table' and v.title .. '  >>' or v.title)
+	function cmdPissType(param)
+		local newtype = tonumber(param)
+		if newtype == nil then
+			sampAddChatMessage(('/pisstype [1-10]. 0 для случайного выбора.'), 0x348cb2)
 		end
-		sampShowDialog(id, caption, table.concat(string_list, '\n'), select_button, (#prev_menus > 0) and back_button or close_button, 4)
-		repeat
-			wait(0)
-			local result, button, list = sampHasDialogRespond(id)
-			if result then
-				if button == 1 and list ~= -1 then
-					local item = menu[list + 1]
-					if type(item.submenu) == 'table' then -- submenu
-						table.insert(prev_menus, {menu = menu, caption = caption})
-						if type(item.onclick) == 'function' then
-							item.onclick(menu, list + 1, item.submenu)
+		if newtype ~= nil and newtype > - 1 and newtype < 11 and newtype ~= nil then
+			data.options.pisstype = newtype
+			LIP.save('moonloader\\config\\pisser.ini', data);
+
+			local script = thisScript()
+			script:reload()
+		end
+	end
+
+	function submenus_show(menu, caption, select_button, close_button, back_button)
+		select_button, close_button, back_button = select_button or 'Select', close_button or 'Close', back_button or 'Back'
+		prev_menus = {}
+		function display(menu, id, caption)
+			local string_list = {}
+			for i, v in ipairs(menu) do
+				table.insert(string_list, type(v.submenu) == 'table' and v.title .. '  >>' or v.title)
+			end
+			sampShowDialog(id, caption, table.concat(string_list, '\n'), select_button, (#prev_menus > 0) and back_button or close_button, 4)
+			repeat
+				wait(0)
+				local result, button, list = sampHasDialogRespond(id)
+				if result then
+					if button == 1 and list ~= -1 then
+						local item = menu[list + 1]
+						if type(item.submenu) == 'table' then -- submenu
+							table.insert(prev_menus, {menu = menu, caption = caption})
+							if type(item.onclick) == 'function' then
+								item.onclick(menu, list + 1, item.submenu)
+							end
+							return display(item.submenu, id + 1, item.submenu.title and item.submenu.title or item.title)
+						elseif type(item.onclick) == 'function' then
+							local result = item.onclick(menu, list + 1)
+							if not result then return result end
+							return display(menu, id, caption)
 						end
-						return display(item.submenu, id + 1, item.submenu.title and item.submenu.title or item.title)
-					elseif type(item.onclick) == 'function' then
-						local result = item.onclick(menu, list + 1)
-						if not result then return result end
-						return display(menu, id, caption)
+					else -- if button == 0
+						if #prev_menus > 0 then
+							local prev_menu = prev_menus[#prev_menus]
+							prev_menus[#prev_menus] = nil
+							return display(prev_menu.menu, id - 1, prev_menu.caption)
+						end
+						return false
 					end
-				else -- if button == 0
-					if #prev_menus > 0 then
-						local prev_menu = prev_menus[#prev_menus]
-						prev_menus[#prev_menus] = nil
-						return display(prev_menu.menu, id - 1, prev_menu.caption)
-					end
-					return false
 				end
-			end
-		until result
+			until result
+		end
+		return display(menu, 31337, caption or menu.title)
 	end
-	return display(menu, 31337, caption or menu.title)
-end
-function pissmenu()
-	menutrigger = 1
-end
-function menu()
-	submenus_show(mod_submenus_sa, '{348cb2}PISSER v'..thisScript().version..'', 'Выбрать', 'Закрыть', 'Назад')
-end
-function checkversion()
-	goplay = 0
-	local fpath = os.getenv('TEMP') .. '\\pisser-version.json'
-	downloadUrlToFile('http://rubbishman.ru/dev/samp/pisser/version.json', fpath, function(id, status, p1, p2)
-		if status == dlstatus.STATUS_ENDDOWNLOADDATA then
-		local f = io.open(fpath, 'r')
-		if f then
-			local info = decodeJson(f:read('*a'))
-			updatelink = info.updateurl
-			if info and info.latest then
-				version = tonumber(info.latest)
-				if version > tonumber(thisScript().version) then
-					sampAddChatMessage(('[PISSER]: Обнаружено обновление. AutoReload может конфликтовать. Обновляюсь..'), 0x348cb2)
-					sampAddChatMessage(('[PISSER]: Текущая версия: '..thisScript().version..". Новая версия: "..version), 0x348cb2)
-					goplay = 2
-					lua_thread.create(goupdate)
+	function pissmenu()
+		menutrigger = 1
+	end
+	function menu()
+		submenus_show(mod_submenus_sa, '{348cb2}PISSER v'..thisScript().version..'', 'Выбрать', 'Закрыть', 'Назад')
+	end
+	function checkversion()
+		goplay = 0
+		local fpath = os.getenv('TEMP') .. '\\pisser-version.json'
+		downloadUrlToFile('http://rubbishman.ru/dev/samp/pisser/version.json', fpath, function(id, status, p1, p2)
+			if status == dlstatus.STATUS_ENDDOWNLOADDATA then
+			local f = io.open(fpath, 'r')
+			if f then
+				local info = decodeJson(f:read('*a'))
+				updatelink = info.updateurl
+				if info and info.latest then
+					version = tonumber(info.latest)
+					if version > tonumber(thisScript().version) then
+						sampAddChatMessage(('[PISSER]: Обнаружено обновление. AutoReload может конфликтовать. Обновляюсь..'), 0x348cb2)
+						sampAddChatMessage(('[PISSER]: Текущая версия: '..thisScript().version..". Новая версия: "..version), 0x348cb2)
+						goplay = 2
+						lua_thread.create(goupdate)
+					end
 				end
 			end
 		end
-	end
-end)
-wait(1000)
-if goplay ~= 2 then goplay = 1 end
+	end)
+	wait(1000)
+	if goplay ~= 2 then goplay = 1 end
 end
 function goupdate()
-wait(300)
-downloadUrlToFile(updatelink, thisScript().path, function(id3, status1, p13, p23)
-	if status1 == dlstatus.STATUS_ENDDOWNLOADDATA then
-	sampAddChatMessage(('[PISSER]: Обновление завершено! Подробнее об обновлении - /pisslog.'), 0x348cb2)
-	goplay = 1
-	thisScript():reload()
-end
+	wait(300)
+	downloadUrlToFile(updatelink, thisScript().path, function(id3, status1, p13, p23)
+		if status1 == dlstatus.STATUS_ENDDOWNLOADDATA then
+		sampAddChatMessage(('[PISSER]: Обновление завершено! Подробнее об обновлении - /pisslog.'), 0x348cb2)
+		goplay = 1
+		thisScript():reload()
+	end
 end)
 end
 function checkbrating()
 if not sampIsChatInputActive() then
-brating = LIP.load('moonloader\\config\\brating.ini');
-sampSendChat('/brating')
-wait(400)
-if not sampIsChatInputActive() and sampGetCurrentDialogId() == 22 then
-	sampSendDialogResponse(22, 1, 0, - 1)
-	wait(800)
-	bratingtext = sampGetDialogText()
-	m1 = string.find(bratingtext, 'Mongols MC', 1, true)
-	b1 = string.find(bratingtext, 'Bandidos MC', 1, true)
-	a1 = string.find(bratingtext, 'Hell’s Angels MC', 1, true)
-	o1 = string.find(bratingtext, 'Outlaws MC', 1, true)
-	mmc = string.sub(bratingtext, m1 + 11, m1 + 17)
-	bmc = string.sub(bratingtext, b1 + 12, b1 + 18)
-	amc = string.sub(bratingtext, a1 + 17, a1 + 23)
-	omc = string.sub(bratingtext, o1 + 11, o1 + 17)
-	if brating.stats.time ~= "ne bilo" then
-		tempTIME = os.time() - brating.stats.time
-		tempTIME = tempTIME / 60
-		tempTIME = math.ceil(tempTIME) - 1
-		sampAddChatMessage(('---BRATING: Последняя проверка была '..tempTIME..' минут назад---'), 0x39CCCC)		end
-			if brating.stats.time == "ne bilo" then
-			sampAddChatMessage(('---BRATING: Первая проверка---'), 0x39CCCC)
+	brating = LIP.load('moonloader\\config\\brating.ini');
+	sampSendChat('/brating')
+	wait(400)
+	if not sampIsChatInputActive() and sampGetCurrentDialogId() == 22 then
+		sampSendDialogResponse(22, 1, 0, - 1)
+		wait(800)
+		bratingtext = sampGetDialogText()
+		m1 = string.find(bratingtext, 'Mongols MC', 1, true)
+		b1 = string.find(bratingtext, 'Bandidos MC', 1, true)
+		a1 = string.find(bratingtext, 'Hell’s Angels MC', 1, true)
+		o1 = string.find(bratingtext, 'Outlaws MC', 1, true)
+		mmc = string.sub(bratingtext, m1 + 11, m1 + 17)
+		bmc = string.sub(bratingtext, b1 + 12, b1 + 18)
+		amc = string.sub(bratingtext, a1 + 17, a1 + 23)
+		omc = string.sub(bratingtext, o1 + 11, o1 + 17)
+		if brating.stats.time ~= "ne bilo" then
+			tempTIME = os.time() - brating.stats.time
+			tempTIME = tempTIME / 60
+			tempTIME = math.ceil(tempTIME) - 1
+			sampAddChatMessage(('---BRATING: Последняя проверка была '..tempTIME..' минут назад---'), 0x39CCCC)		end
+				if brating.stats.time == "ne bilo" then
+				sampAddChatMessage(('---BRATING: Первая проверка---'), 0x39CCCC)
+			end
+			sampAddChatMessage(('Hell\'s Angels MC: '..amc..' ( + '..amc-brating.stats.amc..')'), 0x39CCCC)
+			sampAddChatMessage(('Mongols MC: '..mmc..' (+'..mmc - brating.stats.mmc..')'), 0x39CCCC)
+			sampAddChatMessage(('Outlaws MC: '..omc..' (+'..omc - brating.stats.omc..')'), 0x39CCCC)
+			sampAddChatMessage(('Bandidos MC: '..bmc..' (+'..bmc - brating.stats.bmc..')'), 0x39CCCC)
+			sampAddChatMessage(('-------------------РАЗНИЦА-------------------'), 0x39CCCC)
+			if mmc - amc > 0 then
+				sampAddChatMessage(('Разница Hell\'s Angels MC: '..mmc - amc..' ('..math.ceil((mmc-amc)/10000)..' матов)'), 0x2ECC40)
+			else
+				sampAddChatMessage(('Разница Hell\'s Angels MC: '..mmc - amc..' ('..math.ceil((mmc-amc)/10000)..' матов)'), 0xFF4136)
+			end
+			if mmc - omc > 0 then
+				sampAddChatMessage(('Разница Outlaws MC: '..mmc - omc..' ('..math.ceil((mmc - omc) / 10000)..' матов)'), 0x2ECC40)
+			else
+				sampAddChatMessage(('Разница Outlaws MC: '..mmc - omc..' ('..math.ceil((mmc - omc) / 10000)..' матов)'), 0xFF4136)
+			end
+			if mmc - bmc > 0 then
+				sampAddChatMessage(('Разница Bandidos MC: '..mmc - bmc..' ('..math.ceil((mmc - bmc) / 10000)..' матов)'), 0x2ECC40)
+			else
+				sampAddChatMessage(('Разница Bandidos MC: '..mmc - bmc..' ('..math.ceil((mmc - bmc) / 10000)..' матов)'), 0xFF4136)
+			end
+			sampAddChatMessage(('--------------------------------------------------'), 0x39CCCC)
+			brating.stats.amc = amc
+			brating.stats.mmc = mmc
+			brating.stats.bmc = bmc
+			brating.stats.omc = omc
+			brating.stats.time = os.time()
+			LIP.save('moonloader\\config\\brating.ini', brating)
+			wait(999)
+			sampSendChat('/time')
+			wait(160)
+			bratingscreen()
+			sampCloseCurrentDialogWithButton(0)
+			wait(500)
+			sampCloseCurrentDialogWithButton(0)
+			wait(400)
+			sampCloseCurrentDialogWithButton(0)
 		end
-		sampAddChatMessage(('Hell\'s Angels MC: '..amc..' ( + '..amc-brating.stats.amc..')'), 0x39CCCC)
-		sampAddChatMessage(('Mongols MC: '..mmc..' (+'..mmc - brating.stats.mmc..')'), 0x39CCCC)
-		sampAddChatMessage(('Outlaws MC: '..omc..' (+'..omc - brating.stats.omc..')'), 0x39CCCC)
-		sampAddChatMessage(('Bandidos MC: '..bmc..' (+'..bmc - brating.stats.bmc..')'), 0x39CCCC)
-		sampAddChatMessage(('-------------------РАЗНИЦА-------------------'), 0x39CCCC)
-		if mmc - amc > 0 then
-			sampAddChatMessage(('Разница Hell\'s Angels MC: '..mmc - amc..' ('..math.ceil((mmc-amc)/10000)..' матов)'), 0x2ECC40)
-		else
-			sampAddChatMessage(('Разница Hell\'s Angels MC: '..mmc - amc..' ('..math.ceil((mmc-amc)/10000)..' матов)'), 0xFF4136)
-		end
-		if mmc - omc > 0 then
-			sampAddChatMessage(('Разница Outlaws MC: '..mmc - omc..' ('..math.ceil((mmc - omc) / 10000)..' матов)'), 0x2ECC40)
-		else
-			sampAddChatMessage(('Разница Outlaws MC: '..mmc - omc..' ('..math.ceil((mmc - omc) / 10000)..' матов)'), 0xFF4136)
-		end
-		if mmc - bmc > 0 then
-			sampAddChatMessage(('Разница Bandidos MC: '..mmc - bmc..' ('..math.ceil((mmc - bmc) / 10000)..' матов)'), 0x2ECC40)
-		else
-			sampAddChatMessage(('Разница Bandidos MC: '..mmc - bmc..' ('..math.ceil((mmc - bmc) / 10000)..' матов)'), 0xFF4136)
-		end
-		sampAddChatMessage(('--------------------------------------------------'), 0x39CCCC)
-		brating.stats.amc = amc
-		brating.stats.mmc = mmc
-		brating.stats.bmc = bmc
-		brating.stats.omc = omc
-		brating.stats.time = os.time()
-		LIP.save('moonloader\\config\\brating.ini', brating)
-		wait(999)
-		sampSendChat('/time')
-		wait(160)
-		bratingscreen()
-		sampCloseCurrentDialogWithButton(0)
-		wait(500)
-		sampCloseCurrentDialogWithButton(0)
-		wait(400)
-		sampCloseCurrentDialogWithButton(0)
 	end
-end
 end
