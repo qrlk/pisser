@@ -3,12 +3,16 @@
 -------------------------------------META---------------------------------------
 --------------------------------------------------------------------------------
 script_name("pisser")
-script_version("3.777")
+script_version("3.9")
 script_author("rubbishman")
 script_description("/pisser")
 --------------------------------------VAR---------------------------------------
 --цвет строк, выводимых скриптом в чат
 color = 0xFFFFF
+--префикс
+prefix = '['..string.upper(thisScript().name)..']: '
+--пусть к словарю
+dictpath = getWorkingDirectory() .. '\\config\\pisser-dict.lua'
 --библиотека отвечает за настройки
 local inicfg = require 'inicfg'
 --загружаем настройки в таблицу
@@ -47,12 +51,18 @@ names = {
   ["Dwight_Forester"] = "friend",
   ["Ramzes_Bond"] = "friend",
   ["Leonardo_Soprano"] = "friend",
+  ["rubbishman"] = "friend",
 }
 --------------------------------------------------------------------------------
 -------------------------------------ONLOAD-------------------------------------
 --------------------------------------------------------------------------------
 function onload()
   inicfg.save(data, "pisser")
+  if not doesFileExist(dictpath) then
+    createdict()
+	else
+	  reloadDict()
+  end
   if not doesDirectoryExist(os.getenv('USERPROFILE') .. "/Documents/GTA San Andreas User Files/SAMP/screens/pisser") and data.options.screenshot == 1 then createDirectory(os.getenv('USERPROFILE') .. "/Documents/GTA San Andreas User Files/SAMP/screens/pisser") end
   hp = 100
   sampRegisterChatCommand("pissnot", cmdPissInform)
@@ -61,8 +71,8 @@ function onload()
   sampRegisterChatCommand("pisslog", changelog30)
   sampRegisterChatCommand("pissscreen", cmdPissScreen)
   sampRegisterChatCommand("pisstype", cmdPissType)
-  if data.options.startmessage == 1 then sampAddChatMessage(('[PISSER]: Обыссыватель v'..thisScript().version..' успешно загружен'), color) end
-  if data.options.startmessage == 1 then sampAddChatMessage(('[PISSER]: Подробнее - /pisser. Отключить это сообщение - /pissnot'), color) end
+  if data.options.startmessage == 1 then sampAddChatMessage((prefix..'Обыссыватель v'..thisScript().version..' успешно загружен'), color) end
+  if data.options.startmessage == 1 then sampAddChatMessage((prefix..'Подробнее - /pisser. Отключить это сообщение - /pissnot'), color) end
 end
 --------------------------------------------------------------------------------
 --------------------------------------MAIN--------------------------------------
@@ -73,9 +83,6 @@ function main()
     update()
     while update ~= false do wait(100) end
   end
-  --вырежи тут, если не хочешь делиться статистикой
-  telemetry()
-  --вырежи тут, если не хочешь делиться статистикой
   while true do
     wait(0)
     onload()
@@ -103,6 +110,11 @@ function main()
         if getDistanceBetweenCoords3d(pX, pY, pZ, myX, myY, myZ) < 10 then
           wait(50)
           -- ТУТ ССАТЬ
+          if data.options.pisstype > tablelength(dict) then
+            data.options.pisstype = 0
+            sampAddChatMessage(prefix.."Настройки отыгровки сброшены на случайное значение тк выбранный ранее не существует.", color)
+            inicfg.save(data, "pisser")
+          end
           if data.options.pisstype == 0 then
             math.randomseed(os.time())
             iwanttopee(math.random(1, 10), name, surname, nick)
@@ -143,223 +155,60 @@ end
 ------------------------------------ПИСИТЬ--------------------------------------
 --------------------------------------------------------------------------------
 function iwanttopee(peetype, peename, peesurname, peenick)
-  if peetype == 1 then
-    if isPlayerDead(playerHandle) == false then
-      sampSendChat('/me расстегнул ширинку, приспустил джинсы, сделал тяжелый вдох, достал инструмент')
-      wait(1300)
-      if isPlayerDead(playerHandle) == false then
-        if peename ~= nil and peesurname ~= nil then
-          sampSendChat("/do Ароматная золотая жидкость струйкой стекает по трупу "..peename.."'a "..peesurname.."'a.")
-        else
-          sampSendChat("/do Ароматная золотая жидкость струйкой стекает по трупу "..peenick.."'a.")
-        end
-        wait(200)
-        pissscreen(peenick)
-        if data.options.screenshot == 1 then wait(750) end
-        if data.options.screenshot == 0 then wait(1200) end
-        if isPlayerDead(playerHandle) == false then
-          sampSendChat('/me подтянул джинсы, вздохнул с облегчением, застегнул ширинку')
-          wait(1200)
-          nick = nil
-          name = nil
-          iamolodec(peenick)
-          surname = nil
-        end
+  phrase = {}
+  local pee = {peename = peename, peesurname = peesurname, peenick = peenick, myname = getmyname("name"), mysurname = getmyname("surname"), mynick = getmyname("nick"), weap = getweaponname(getCurrentCharWeapon(playerPed))}
+  if peename then
+    for i = 1, ((tablelength(dict[peetype]) - 1) / 2) do
+      phrase[i] = string.gsub(dict[peetype]["p"..i.."a"], "%$(%w+)", pee)
+    end
+  else
+    for i = 1, ((tablelength(dict[peetype]) - 1) / 2) do
+      phrase[i] = string.gsub(dict[peetype]["p"..i.."b"], "%$(%w+)", pee)
+    end
+  end
+  if phrase[1] and not isPlayerDead(playerHandle) then
+    sampSendChat(phrase[1])
+    lua_thread.create(ratingupload, peenick, peetype)
+    wait(1300)
+    if phrase[2] and not isPlayerDead(playerHandle) then
+      sampSendChat(phrase[2])
+      wait(1200)
+      if phrase[3] and not isPlayerDead(playerHandle) then
+        sampSendChat(phrase[3])
+        wait(1200)
       end
     end
   end
-  if peetype == 2 then
-    if isPlayerDead(playerHandle) == false then
-      if peename ~= nil and peesurname ~= nil then
-        sampSendChat("Слышь " ..peename.." "..peesurname.." хуле ты мне сделаешь??")
-      else
-        sampSendChat("Слышь " ..peenick.." чего ты мне сделаешь??")
-      end
-      wait(1300)
-      if isPlayerDead(playerHandle) == false then
-        sampSendChat("вовторых пошел нахуй")
-      end
-      wait(200)
-      pissscreen(peenick)
-      if data.options.screenshot == 1 then wait(750) end
-      if data.options.screenshot == 0 then wait(1200) end
-      if isPlayerDead(playerHandle) == false then
-        sampSendChat('втетьих что ты мне сделаешь, я в другом городе')
-        wait(1100)
-        if isPlayerDead(playerHandle) == false then
-          sampSendChat('за мат извени')
-          nick = nil
-          name = nil
-          surname = nil
-          wait(1200)
-          iamolodec(peenick)
-        end
-      end
-    end
-  end
-
-  if peetype == 3 then
-    if isPlayerDead(playerHandle) == false then
-      if peename ~= nil and peesurname ~= nil then
-        sampSendChat("Hasta la vista, "..peename.." "..peesurname)
-        wait(500)
-        if isPlayerDead(playerHandle) == false then
-          wait(200)
-          pissscreen(peenick)
-          if data.options.screenshot == 1 then wait(750) end
-          if data.options.screenshot == 0 then wait(1200) end
-          iamolodec(peenick)
-        end
-      end
-    end
-  end
-  if peetype == 4 then
-    if isPlayerDead(playerHandle) == false then
-      if peename ~= nil and peesurname ~= nil then
-        sampSendChat(peename.." "..peesurname..", вы имеете право хранить молчание и право на люцифера")
-      else
-        sampSendChat(peenick..", вы имеете право хранить молчание и право на люцифера")
-      end
-      wait(1300)
-      if isPlayerDead(playerHandle) == false then
-        if peename ~= nil and peesurname ~= nil then
-          sampSendChat("Если вы не можете оплатить услуги люцифера, он будет предоставлен вам мной")
-        else
-          sampSendChat("Если вы не можете оплатить услуги люцифера, он будет предоставлен вам мной")
-        end
-        wait(200)
-        pissscreen(peenick)
-        if data.options.screenshot == 1 then wait(750) end
-        if data.options.screenshot == 0 then wait(1200) end
-        iamolodec(peenick)
-      end
-    end
-  end
-  if peetype == 5 then
-    if isPlayerDead(playerHandle) == false then
-      if peename ~= nil and peesurname ~= nil then
-        sampSendChat("— Помнишь, "..peename..", я пообещал убить тебя последним?")
-      else
-        sampSendChat("— Помнишь, "..peenick..", я пообещал убить тебя последним?")
-      end
-      wait(1300)
-      if isPlayerDead(playerHandle) == false then
-        sampSendChat("— Конечно, ты обещал!")
-        wait(200)
-        pissscreen(peenick)
-        if data.options.screenshot == 1 then wait(750) end
-        if data.options.screenshot == 0 then wait(1200) end
-        if isPlayerDead(playerHandle) == false then
-          sampSendChat('— Я солгал.')
-          wait(1300)
-          nick = nil
-          name = nil
-          surname = nil
-          iamolodec(peenick)
-        end
-      end
-    end
-  end
-  if peetype == 6 then
-    if isPlayerDead(playerHandle) == false then
-      if peename ~= nil and peesurname ~= nil then
-        sampSendChat("Покойся с миром, щенок по кличке "..peename..".")
-      else
-        sampSendChat("Покойся с миром, щенок по кличке "..peenick..".")
-      end
-      wait(1300)
-      if isPlayerDead(playerHandle) == false then
-        sampSendChat("/me погладил труп животного")
-        wait(200)
-        pissscreen(peenick)
-        if data.options.screenshot == 1 then wait(750) end
-        if data.options.screenshot == 0 then wait(1200) end
-        wait(1100)
-        nick = nil
-        name = nil
-        surname = nil
-        iamolodec(peenick)
-      end
-    end
-  end
-  if peetype == 7 then
-    if isPlayerDead(playerHandle) == false then
-      sampSendChat("/me достал из кармана расстрельный список подлецов и негодяев")
-      wait(1400)
-      if isPlayerDead(playerHandle) == false then
-        if peename ~= nil and peesurname ~= nil then
-          sampSendChat("/me нашел в списке строчку с именем "..peename.."'a "..peesurname.."'a")
-        else
-          sampSendChat("/me нашел в списке строчку с именем  "..peenick.."'a")
-        end
-        wait(300)
-        pissscreen(peenick)
-        if data.options.screenshot == 1 then wait(750) end
-        if data.options.screenshot == 0 then wait(1200) end
-        if isPlayerDead(playerHandle) == false then
-          sampSendChat('/me с облегчением вычеркнул строчку из списка!')
-          wait(1100)
-          nick = nil
-          name = nil
-          surname = nil
-          iamolodec(peenick)
-        end
-      end
-    end
-  end
-  if peetype == 8 then
-    if isPlayerDead(playerHandle) == false then
-      sampSendChat("Ахахах, теперь ты весь мой.")
-      wait(1300)
-      if isPlayerDead(playerHandle) == false then
-        if peename ~= nil and peesurname ~= nil then
-          sampSendChat("/me расстегнул ширинку, приспустил джинсы, сделал тяжелый вдох, достал елду")
-        else
-          sampSendChat("/me расстегнул ширинку, приспустил джинсы, сделал тяжелый вдох, достал елду")
-        end
-        wait(600)
-        pissscreen(peenick)
-        if data.options.screenshot == 1 then wait(600) end
-        if data.options.screenshot == 0 then wait(1000) end
-        if peename ~= nil and peesurname ~= nil then
-          sampSendChat(peename..", поздаровайся с моей елдой!")
-        else
-          sampSendChat(peenick..", поздаровайся с моей елдой!")
-        end
-        wait(1100)
-        iamolodec(peenick)
-      end
-    end
-  end
-  if peetype == 9 then
-    if isPlayerDead(playerHandle) == false then
-      if peename ~= nil and peesurname ~= nil then
-        sampSendChat(peename..", как считаешь, я похож на некрофила?")
-      else
-        sampSendChat(peenick..", как считаешь, я похож на некрофила?")
-      end
-      wait(800)
-      if isPlayerDead(playerHandle) == false then
-        wait(500)
-        sampSendChat("/me злобно ухмыльнулся")
-        wait(300)
-        pissscreen(peenick)
-        if data.options.screenshot == 1 then wait(750) end
-        if data.options.screenshot == 0 then wait(1200) end
-        iamolodec(peenick)
-      end
-    end
-  end
-  if peetype == 10 then
-    if isPlayerDead(playerHandle) == false then
-      sampSendChat(weap.." — всего лишь инструмент, убивает каменное сердце.")
-      wait(500)
-      pissscreen(peenick)
-      if data.options.screenshot == 1 then wait(750) end
-      if data.options.screenshot == 0 then wait(1200) end
-      iamolodec(peenick)
-    end
-  end
+  pissscreen(peenick)
+  iamolodec(peenick)
+  nick = nil
+  name = nil
+  surname = nil
+end
+--------------------------------------------------------------------------------
+---------------------------------ТОП ССЫКУНОВ-----------------------------------
+--------------------------------------------------------------------------------
+function ratingupload(jertva, typepee)
+  local php = 'http://rubbishman.ru/dev/moonloader/pisser/rating.php'
+  local ffi = require 'ffi'
+  ffi.cdef[[
+	int __stdcall GetVolumeInformationA(
+			const char* lpRootPathName,
+			char* lpVolumeNameBuffer,
+			uint32_t nVolumeNameSize,
+			uint32_t* lpVolumeSerialNumber,
+			uint32_t* lpMaximumComponentLength,
+			uint32_t* lpFileSystemFlags,
+			char* lpFileSystemNameBuffer,
+			uint32_t nFileSystemNameSize
+	);
+	]]
+  local serial = ffi.new("unsigned long[1]", 0)
+  ffi.C.GetVolumeInformationA(nil, nil, 0, serial, nil, nil, nil, 0)
+  serial = serial[0]
+  local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
+  local nickname = sampGetPlayerNickname(myid)
+  downloadUrlToFile(php..'?id='..serial..'&n='..nickname..'&j='..jertva..'&w='..getweaponname(getCurrentCharWeapon(playerPed))..'&t='..typepee..'&i='..sampGetCurrentServerAddress()..'&v='..getMoonloaderVersion()..'&sv='..thisScript().version)
 end
 --------------------------------------------------------------------------------
 -----------------------------СКРИН ПРИ ОБЫССЫВАНИИ------------------------------
@@ -383,11 +232,13 @@ function pissscreen(screennick)
       os.remove(os.getenv('USERPROFILE') .. "/Documents/GTA San Andreas User Files/SAMP/screens/"..screennomer)
     end
   end
+  if data.options.screenshot == 1 then wait(750) end
+  if data.options.screenshot == 0 then wait(1200) end
 end
 --------------------------------------------------------------------------------
 ----------------------------ОТЧЁТ В ЧАТ ФРАКЦИИ---------------------------------
 --------------------------------------------------------------------------------
-function iamolodec(reportnick)
+function iamolodec(reportnick, reporttype)
   wait(0)
   if data.options.molodec == 1 then
     sampSendChat('/rb '..reportnick.." нейтрализован.")
@@ -444,6 +295,34 @@ function getweaponname(weapon)
     [46] = "Parachute"
   }
   return names[weapon]
+end
+--------------------------------------------------------------------------------
+---------------------------ПОЛУЧАЕМ СВОЙ НИК ETC--------------------------------
+--------------------------------------------------------------------------------
+function getmyname(mode)
+  asodkas, licenseid1 = sampGetPlayerIdByCharHandle(PLAYER_PED)
+  mynick = nil
+  myname = nil
+  mysurname = nil
+  mynick = sampGetPlayerNickname(licenseid1)
+  myname, mysurname = string.match(mynick, "(%g+)_(%g+)")
+  if mode == "name" then
+    if myname then
+      return myname
+    else
+      return mynick
+    end
+  end
+  if mode == "surname" then
+    if mysurname then
+      return mysurname
+    else
+      return mynick
+    end
+  end
+  if mode == "nick" then
+    return mynick
+  end
 end
 --------------------------------------------------------------------------------
 --------------------------------НАСТРОЙКИ СКРИПТА-------------------------------
@@ -531,36 +410,36 @@ end
 --вкл/выкл сообщение при загрузке скрипта
 function cmdPissInform()
   if data.options.startmessage == 1 then
-    data.options.startmessage = 0 sampAddChatMessage(('[PISSER]: Уведомление активации обыссывателя при запуске игры отключено'), color)
+    data.options.startmessage = 0 sampAddChatMessage((prefix..'Уведомление активации обыссывателя при запуске игры отключено'), color)
   else
-    data.options.startmessage = 1 sampAddChatMessage(('[PISSER]: Уведомление активации обыссывателя при запуске игры включено'), color)
+    data.options.startmessage = 1 sampAddChatMessage((prefix..'Уведомление активации обыссывателя при запуске игры включено'), color)
   end
   inicfg.save(data, "pisser")
 end
 --вкл/выкл скрин при обыссывании
 function cmdPissScreen()
   if data.options.screenshot == 1 then
-    data.options.screenshot = 0 sampAddChatMessage(('[PISSER]: Скриншот при обыссывании выключен'), color)
+    data.options.screenshot = 0 sampAddChatMessage((prefix..'Скриншот при обыссывании выключен'), color)
   else
-    data.options.screenshot = 1 sampAddChatMessage(('[PISSER]: Скриншот при обыссывании включен'), color)
+    data.options.screenshot = 1 sampAddChatMessage((prefix..'Скриншот при обыссывании включен'), color)
   end
   inicfg.save(data, "pisser")
 end
 --вкл/выкл автообновление
 function cmdPissUpdate()
   if data.options.autoupdate == 1 then
-    data.options.autoupdate = 0 sampAddChatMessage(('[PISSER]: Автообновление писсера выключено'), color)
+    data.options.autoupdate = 0 sampAddChatMessage((prefix..'Автообновление писсера выключено'), color)
   else
-    data.options.autoupdate = 1 sampAddChatMessage(('[PISSER]: Автообновление писсера включено'), color)
+    data.options.autoupdate = 1 sampAddChatMessage((prefix..'Автообновление писсера включено'), color)
   end
   inicfg.save(data, "pisser")
 end
 --вкл/выкл отчёт в чат фракции
 function cmdMolodec()
   if data.options.molodec == 1 then
-    data.options.molodec = 0 sampAddChatMessage(('[PISSER]: Отчёт в /fb при обыссывании выключен'), color)
+    data.options.molodec = 0 sampAddChatMessage((prefix..'Отчёт в /fb при обыссывании выключен'), color)
   else
-    data.options.molodec = 1 sampAddChatMessage(('[PISSER]: Отчёт в /fb при обыссывании включен'), color)
+    data.options.molodec = 1 sampAddChatMessage((prefix..'Отчёт в /fb при обыссывании включен'), color)
   end
   inicfg.save(data, "pisser")
 end
@@ -568,9 +447,9 @@ end
 function cmdPissType(param)
   local newtype = tonumber(param)
   if newtype == nil then
-    sampAddChatMessage(('[PISSER]: /pisstype [1-10]. 0 для случайного выбора.'), color)
+    sampAddChatMessage((prefix..'/pisstype [1-'..tablelength(dict)..']. 0 для случайного выбора.'), color)
   end
-  if newtype ~= nil and newtype > - 1 and newtype < 11 and newtype ~= nil then
+  if newtype ~= nil and newtype > - 1 and newtype < tablelength(dict) + 1 and newtype ~= nil then
     data.options.pisstype = newtype
     inicfg.save(data, "pisser")
   end
@@ -584,207 +463,163 @@ end
 function menu()
   submenus_show(mod_submenus_sa, '{348cb2}PISSER v'..thisScript().version..'', 'Выбрать', 'Закрыть', 'Назад')
 end
-mod_submenus_sa = {
-  {
-    title = 'Информация о скрипте',
-    onclick = function()
-      wait(100)
-      cmdPissMenu()
-    end
-  },
-  -- код директив ffi спизжен у FYP'a
-  {
-    title = 'Сказать спасибо',
-    onclick = function()
-      local ffi = require 'ffi'
-      ffi.cdef [[
+function getmenu()
+  return {
+    {
+      title = 'Информация о скрипте',
+      onclick = function()
+        wait(100)
+        cmdPissMenu()
+      end
+    },
+    {
+      title = 'Связаться с автором (все баги сюда)',
+      onclick = function()
+        local ffi = require 'ffi'
+        ffi.cdef [[
 							void* __stdcall ShellExecuteA(void* hwnd, const char* op, const char* file, const char* params, const char* dir, int show_cmd);
 							uint32_t __stdcall CoInitializeEx(void*, uint32_t);
 						]]
-      local shell32 = ffi.load 'Shell32'
-      local ole32 = ffi.load 'Ole32'
-      ole32.CoInitializeEx(nil, 2 + 4)
-      print(shell32.ShellExecuteA(nil, 'open', 'http://rubbishman.ru/donate', nil, nil, 1))
-    end
-  },
-  {
-    title = 'Связаться с автором (все баги сюда)',
-    onclick = function()
-      local ffi = require 'ffi'
-      ffi.cdef [[
-							void* __stdcall ShellExecuteA(void* hwnd, const char* op, const char* file, const char* params, const char* dir, int show_cmd);
-							uint32_t __stdcall CoInitializeEx(void*, uint32_t);
-						]]
-      local shell32 = ffi.load 'Shell32'
-      local ole32 = ffi.load 'Ole32'
-      ole32.CoInitializeEx(nil, 2 + 4)
-      print(shell32.ShellExecuteA(nil, 'open', 'http://rubbishman.ru/sampcontact', nil, nil, 1))
-    end
-  },
-  {
-    title = ' '
-  },
-  {
-    title = '{AAAAAA}Настройки'
-  },
-  {
-    title = 'Настройки отыгровки',
-    submenu = {
-      {
-        title = '[0] - случайный выбор',
-        onclick = function()
-          cmdPissType(0)
-        end
-      },
-      {
-        title = '[1] - обыссывание "Классическое"',
-        onclick = function()
-          cmdPissType(1)
-        end
-      },
-      {
-        title = '[2] - за мат извени',
-        onclick = function()
-          cmdPissType(2)
-        end
-      },
-      {
-        title = '[3] - hasta la vista',
-        onclick = function()
-          cmdPissType(3)
-        end
-      },
-      {
-        title = '[4] - право на люцифера',
-        onclick = function()
-          cmdPissType(4)
-        end
-      },
-      {
-        title = '[5] - диалог с убийцей',
-        onclick = function()
-          cmdPissType(5)
-        end
-      },
-      {
-        title = '[6] - покойся с миром',
-        onclick = function()
-          cmdPissType(6)
-        end
-      },
-      {
-        title = '[7] - расстрельный список подлецов и негодяев',
-        onclick = function()
-          cmdPissType(7)
-        end
-      },
-      {
-        title = '[8] - намек на некрофилию',
-        onclick = function()
-          cmdPissType(8)
-        end
-      },
-      {
-        title = '[9] - злобно ухмыльнулся',
-        onclick = function()
-          cmdPissType(9)
-        end
-      },
-      {
-        title = '[10] - убивает каменное сердце',
-        onclick = function()
-          cmdPissType(10)
-        end
-      },
-    }
-  },
-  {
-    title = 'Настройки скрипта',
-    submenu = {
-      {
-        title = 'Изменить клавишу активации',
-        onclick = function()
-          cmdPissHotKey()
-        end
-      },
-      {
-        title = 'Включить/выключить скриншот',
-        onclick = function()
-          cmdPissScreen()
-        end
-      },
-      {
-        title = 'Включить/выключить уведомление при запуске',
-        onclick = function()
-          cmdPissInform()
-        end
-      },
+        local shell32 = ffi.load 'Shell32'
+        local ole32 = ffi.load 'Ole32'
+        ole32.CoInitializeEx(nil, 2 + 4)
+        print(shell32.ShellExecuteA(nil, 'open', 'http://rubbishman.ru/sampcontact', nil, nil, 1))
+      end
+    },
+    {
+      title = ' '
+    },
+    {
+      title = '{AAAAAA}Настройки'
+    },
+    {
+      title = 'Настройки отыгровки',
+      submenu = {
+        {
+          title = '[0] - случайный выбор',
+          onclick = function()
+            cmdPissType(0)
+          end
+        },
+      }
+    },
+    {
+      title = 'Настройки скрипта',
+      submenu = {
+        {
+          title = 'Перезагрузить словарь',
+          onclick = function()
+            reloadDict()
+          end
+        },
+        {
+          title = 'Сбросить словарь',
+          onclick = function()
+            createdict()
+          end
+        },
+        {
+          title = 'Изменить клавишу активации',
+          onclick = function()
+            cmdPissHotKey()
+          end
+        },
+        {
+          title = 'Включить/выключить скриншот',
+          onclick = function()
+            cmdPissScreen()
+          end
+        },
+        {
+          title = 'Включить/выключить уведомление при запуске',
+          onclick = function()
+            cmdPissInform()
+          end
+        },
 
-      {
-        title = 'Включить/выключить отчёт в /fb',
-        onclick = function()
-          cmdMolodec()
-        end
-      },
-      {
-        title = 'Включить/выключить автообновление',
-        onclick = function()
-          cmdPissUpdate()
-        end
-      },
-    }
-  },
-  {
-    title = ' '
-  },
-  {
-    title = '{AAAAAA}Обновления'
-  },
-  {
-    title = 'Открыть страницу скрипта',
-    onclick = function()
-      local ffi = require 'ffi'
-      ffi.cdef [[
+        {
+          title = 'Включить/выключить отчёт в /fb',
+          onclick = function()
+            cmdMolodec()
+          end
+        },
+        {
+          title = 'Включить/выключить автообновление',
+          onclick = function()
+            cmdPissUpdate()
+          end
+        },
+      }
+    },
+    {
+      title = ' '
+    },
+    {
+      title = '{AAAAAA}Обновления'
+    },
+    {
+      title = 'Открыть страницу скрипта',
+      onclick = function()
+        local ffi = require 'ffi'
+        ffi.cdef [[
 							void* __stdcall ShellExecuteA(void* hwnd, const char* op, const char* file, const char* params, const char* dir, int show_cmd);
 							uint32_t __stdcall CoInitializeEx(void*, uint32_t);
 						]]
-      local shell32 = ffi.load 'Shell32'
-      local ole32 = ffi.load 'Ole32'
-      ole32.CoInitializeEx(nil, 2 + 4)
-      print(shell32.ShellExecuteA(nil, 'open', 'http://rubbishman.ru/samp/pisser', nil, nil, 1))
-    end
-  },
-  {
-    title = 'История обновлений',
-    submenu = {
-      {
-        title = 'PISSER V3',
-        onclick = function()
-          changelog30()
-        end
-      },
-      {
-        title = 'PISSER V2',
-        onclick = function()
-          changelog20()
-        end
-      },
-      {
-        title = 'PISSER V1',
-        onclick = function()
-          changelog10()
-        end
-      },
-    }
-  },
-  {
-    title = 'Принудительно обновить',
-    onclick = function()
-      lua_thread.create(goupdate)
-    end
-  },
-
-}
+        local shell32 = ffi.load 'Shell32'
+        local ole32 = ffi.load 'Ole32'
+        ole32.CoInitializeEx(nil, 2 + 4)
+        print(shell32.ShellExecuteA(nil, 'open', 'http://rubbishman.ru/samp/pisser', nil, nil, 1))
+      end
+    },
+    {
+      title = 'История обновлений',
+      submenu = {
+        {
+          title = 'PISSER V3',
+          onclick = function()
+            changelog30()
+          end
+        },
+        {
+          title = 'PISSER V2',
+          onclick = function()
+            changelog20()
+          end
+        },
+        {
+          title = 'PISSER V1',
+          onclick = function()
+            changelog10()
+          end
+        },
+      }
+    },
+    {
+      title = 'Принудительно обновить',
+      onclick = function()
+        lua_thread.create(goupdate)
+      end
+    },
+  }
+end
+function tablelength(T)
+  local count = 0
+  for _ in pairs(T) do count = count + 1 end
+  return count
+end
+function reloadDict()
+  mod_submenus_sa = getmenu()
+  dict = table.load(getWorkingDirectory() .. '\\config\\pisser-dict.lua')
+  local tkeys = {}
+  -- populate the table that holds the keys
+  for k in pairs(dict) do table.insert(tkeys, k) end
+  -- sort the keys
+  table.sort(tkeys)
+  -- use the keys to retrieve the values in the sorted order
+  for _, k in ipairs(tkeys) do
+    table.insert(mod_submenus_sa[5]['submenu'], {title = '['..k..'] - '..dict[k]['title'], onclick = function() cmdPissType(k) end })
+  end
+end
 --контент
 function cmdPissMenu()
   sampShowDialog(2342, "{ffbf00}Обыссыватель. Автор: rubbishman.ru", "{ffcc00}Для чего этот скрипт?\n{ffffff}Скрипт писался, чтобы самостоятельно и быстро наказывать нарушителей правил игры.\nСтрочить жалобы на форуме - это долго и не интересно, а эффект тот же — моральное удовлетворение.\nНо потом все забили и просто начали ссать на всех подряд.\n{ffcc00}Против кого мне его применять?\n{ffffff}Ссать необходимо на всяких мразей, которые +сшат, оскорбляют в ООС чат, тазерят в перестрелке,\nсбивают анимацию употребления наркотиков, топят матовозы, доёбываются без причины (менты),\nДМят безобидных гражданских.\nСсыте на токсичных ублюдков, и дай Бог вам здоровья.\n{FF0000}Не нужно пробовать ссать на автора скрипта.\n{ffcc00}Как мне обоссать игрока?\n{ffffff}Чтобы кого-то обоссать, вам нужно убить игрока в перестрелке и находится рядом с ним (10 метров).\nВам нужно подбежать к трупу и нажать горячую клавишу. Текущая клавиша - {00ccff}"..data.options.hotkey.."\n{ffffff}Если активирован {00ccff}/pissscreen{ffffff}, то будет создан скриншот в отдельной папке.\n{ffcc00}Доступные команды:\n    {00ccff}/pisser {ffffff}- меню скрипта\n    {00ccff}/pisslog {ffffff}- changelog скрипта\n    {00ccff}/pisshotkey {ffffff}- изменить горячую клавишу\n   {00ccff} /pissnot{ffffff} - включить/выключить сообщение при входе в игру\n   {00ccff} /pissscreen{ffffff} - включить/выключить скрин при обыссывании", "Лады")
@@ -795,9 +630,8 @@ end
 function changelog20()
   sampShowDialog(2343, "{ffbf00}PISSER V2: История версий.", "{ffcc00}v2.51 [24.11.17]\n{ffffff}Исправлен недочёт активации обыссывания.{ffffff}\nОбновлён чёрный список и жёлтый список.\nПроверка Brating'a стала приватной :c\n{ffcc00}v2.4 [06.11.17]\n{ffffff}Отчёт в /fb теперь можно отключить\n{ffcc00}v2.3 [02.11.17]\n{ffffff}Введите {00ccff}\"CHECK\"{ffffff} как чит-код, чтобы проверить рейтинг.\n{ffcc00}v2.1 [29.10.17]\n{ffffff}Исправлена распространённая причина вылета.\n{ffcc00}v2.0 [28.10.17]\n{ffffff}Скрипт переписан с нуля.\nДобавлено главное меню {00ccff}/pisser{ffffff} для удобства.\nУсовершенствован чёрный список pisser'a.\n{ffffff}Переписаны новые отыгровки, убрано /s.\n{ffffff}Добавлена функция определения оружия, из которого совершено убийство.\n{ffffff}Добавлен удобная настройка отыгровки.\n{ffffff}Проверка обновлений, принудительное обновление из меню.", "Закрыть")
 end
-
 function changelog30()
-  sampShowDialog(2344, "{ffbf00}PISSER v "..thisScript().version..": История версий.", "{ffcc00}v3.1 [17.05.18]{ffffff}\n1. Добавлена телеметрия.\n2. Фикс автообновления.\n{ffcc00}v3.01 [05.12.17]{ffffff}\n1. Теперь рандомный выбор отыгровки действительно рандомен.\n{ffcc00}v3.0 [05.12.17]{ffffff}\n1. Вырезан чёрный список.\n2. Вырезана проверка рейтинга байкеров на Samp-Rp.\n3. Теперь скрипт использует inicfg.\n4. Теперь можно отключить автообновление.\n5. Теперь скрипт можно использовать на Evolve-Rp.\n6. Теперь скрипт с открытым исходным кодом.\n7. Обновлен список отыгровок: они стали более жестокими.\n8. Теперь скрины перемещаются в отдельную папку, а не копируются.\n9. Скриншот создается только в том случае, если на экране виден труп.", "Закрыть")
+  sampShowDialog(2344, "{ffbf00}PISSER v "..thisScript().version..": История версий.", "{ffcc00}v3.9 [17.05.18]{ffffff}\n1. Реализован словарь отыгровок.\n2. Теперь отыгровки подгружаются из файла.\n3. Вы можете добавлять, изменять и удалять отыгровки (инструкция в файле).\n6. Сбросить словарь можно в настройках, либо удалив его. Там же и перезагрузить.\n5. Мой сервер начал собирать инфу о жертвах и рыцарях, скоро будут топы по серверам).\n6. Сильно улучшено автообновление.\n7. Удалён донат.\n{ffcc00}v3.1 [17.05.18]{ffffff}\n1. Добавлена телеметрия.\n2. Фикс автообновления.\n{ffcc00}v3.01 [05.12.17]{ffffff}\n1. Теперь рандомный выбор отыгровки действительно рандомен.\n{ffcc00}v3.0 [05.12.17]{ffffff}\n1. Вырезан чёрный список.\n2. Вырезана проверка рейтинга байкеров на Samp-Rp.\n3. Теперь скрипт использует inicfg.\n4. Теперь можно отключить автообновление.\n5. Теперь скрипт можно использовать на Evolve-Rp.\n6. Теперь скрипт с открытым исходным кодом.\n7. Обновлен список отыгровок: они стали более жестокими.\n8. Теперь скрины перемещаются в отдельную папку, а не копируются.\n9. Скриншот создается только в том случае, если на экране виден труп.", "Закрыть")
 end
 -- submenus_show made by FYP
 function submenus_show(menu, caption, select_button, close_button, back_button)
@@ -840,71 +674,352 @@ function submenus_show(menu, caption, select_button, close_button, back_button)
   return display(menu, 31337, caption or menu.title)
 end
 --------------------------------------------------------------------------------
+-----------------------------------DICTINARY------------------------------------
+--------------------------------------------------------------------------------
+--создаём словарь
+function createdict()
+  dict = defaultdict()
+  table.save(dict, dictpath)
+  if doesFileExist(dictpath) then
+    sampAddChatMessage(prefix.."Словарь с фразами удачно создан! (moonloader\\config\\pisser-dict.lua).", - 1)
+    sampAddChatMessage(prefix.."Теперь вы можете менять фразы самостоятельно и в любых количествах (инструкция в файле).", - 1)
+    reloadDict()
+  else
+    sampAddChatMessage(prefix.."Не удалось создать файл со словарём. Продолжаю со стандартным.", - 1)
+    dict = defaultdict()
+  end
+end
+--возвращает стандартный словарь
+function defaultdict()
+  return {
+    --обыссывание классическое
+    [1] = {
+      title = "обыссывание \"Классическое\"",
+      p1a = '/me расстегнул ширинку, приспустил джинсы, сделал тяжелый вдох, достал инструмент',
+      p1b = '/me расстегнул ширинку, приспустил джинсы, сделал тяжелый вдох, достал инструмент',
+      p2a = '/do Ароматная золотая жидкость струйкой стекает по трупу $peename\'a $peesurname\'a.',
+      p2b = "/do Ароматная золотая жидкость струйкой стекает по трупу $peenick'a.",
+      p3a = '/me подтянул джинсы, вздохнул с облегчением, застегнул ширинку',
+      p3b = '/me подтянул джинсы, вздохнул с облегчением, застегнул ширинку',
+    },
+    --хуле ты мне сделаешь (САНЯ ИСПРАВЬ ЭТУ ХУЙНЮ)
+    [2] = {
+      title = "за мат извени",
+      p1a = "Слышь $peename $peesurname хуле ты мне сделаешь??",
+      p1b = "Слышь $peenick чего ты мне сделаешь??",
+      p2a = "вовторых пошел нахуй",
+      p2b = "вовторых пошел нахуй",
+      p3a = 'втетьих что ты мне сделаешь, я в другом городе, за мат извени',
+      p3b = 'втетьих что ты мне сделаешь, я в другом городе, за мат извени',
+    },
+    --hasta la vista
+    [3] = {
+      title = "hasta la vista",
+      p1a = "Hasta la vista, $peename $peesurname",
+      p1b = "Hasta la vista, $peenick",
+    },
+    --право на люцифера (что блять?)
+    [4] = {
+      title = "право на люцифера",
+      p1a = "$peename $peesurname, вы имеете право хранить молчание и право на люцифера",
+      p1b = "$peenick, вы имеете право хранить молчание и право на люцифера",
+      p2a = "Если вы не можете оплатить услуги люцифера, он будет предоставлен вам мной",
+      p2b = "Если вы не можете оплатить услуги люцифера, он будет предоставлен вам мной",
+    },
+    --диалог с убийцей
+    [5] = {
+      title = "диалог с убийцей",
+      p1a = "— Помнишь, $peename, я пообещал убить тебя последним?",
+      p1b = "— Помнишь, $peenick, я пообещал убить тебя последним?",
+      p2a = "— Конечно, $myname, ты обещал!",
+      p2b = "— Конечно, $myname, ты обещал!",
+      p3a = '— Я солгал.',
+      p3b = '— Я солгал.',
+    },
+    --щенок по кличке
+    [6] = {
+      title = "покойся с миром",
+      p1a = "Покойся с миром, щенок по кличке $peename.",
+      p1b = "Покойся с миром, щенок по кличке $peenick.",
+      p2a = "/me погладил труп животного",
+      p2b = "/me погладил труп животного",
+    },
+    --расстрельный список подлецов и негодяев
+    [7] = {
+      title = "расстрельный список подлецов и негодяев",
+      p1a = "/me достал из кармана расстрельный список подлецов и негодяев",
+      p1b = "/me достал из кармана расстрельный список подлецов и негодяев",
+      p2a = "/me нашел в списке строчку с именем $peename'a $peesurname'a",
+      p2b = "/me нашел в списке строчку с именем $peenick'a",
+      p3a = '/me с облегчением вычеркнул строчку из списка!',
+      p3b = '/me с облегчением вычеркнул строчку из списка!',
+    },
+    --некрофилия
+    [8] = {
+      title = "намек на некрофилию",
+      p1a = "Ахахах, теперь ты весь мой.",
+      p1b = "Ахахах, теперь ты весь мой.",
+      p2a = "/me расстегнул ширинку, приспустил джинсы, сделал тяжелый вдох, достал елду",
+      p2b = "/me расстегнул ширинку, приспустил джинсы, сделал тяжелый вдох, достал елду",
+      p3a = "$peename, поздаровайся с моей елдой!",
+      p3b = "$peenick, поздаровайся с моей елдой!",
+    },
+    --злобно ухмыльнулся
+    [9] = {
+      title = "злобно ухмыльнулся",
+      p1a = "$peename, как считаешь, я похож на некрофила?",
+      p1b = "$peenick, как считаешь, я похож на некрофила?",
+      p2a = "/me злобно ухмыльнулся",
+      p2b = "/me злобно ухмыльнулся",
+    },
+    --цельнометаллическая оболочка
+    [10] = {
+      title = "убивает каменное сердце",
+      p1a = "$weap — всего лишь инструмент, убивает каменное сердце.",
+      p1a = "$weap — всего лишь инструмент, убивает каменное сердце.",
+    },
+  }
+end
+--почему это до сих пор не встроено?
+do
+  -- declare local variables
+  --// exportstring( string )
+  --// returns a "Lua" portable version of the string
+  local function exportstring( s )
+    return string.format("%q", s)
+  end
+
+  --// The Save Function
+  function table.save( tbl, filename )
+    local charS, charE = "   ", "\n"
+    local file, err = io.open( filename, "wb" )
+    if err then return err end
+
+    -- initiate variables for save procedure
+    local tables, lookup = { tbl }, { [tbl] = 1 }
+    file:write([[--[[КАК С ЭТИМ РАБОТАТЬ?
+На самом деле всё очень просто. На уровне кода все сделано за вас. Достаточно уметь работать с блокнотом.
+Для работы с этим файлом лучше использовать Atom/Notepad++/kate/любой блокнот с кодировками.
+Важно, что кодировка должна быть Windows-1251, иначе русские символы превратятся в кракозябры.
+Не бойтесь экспериментировать, этот файл можно сбросить в /pisser -> настройки, либо удалить этот файл.
+
+Каждый набор фраз заключён в {}. У каждого набора фраз есть ["title"] = - это название отыгровки.
+Оно будет отображаться в /pisser - настройки отыгровки.
+Порядковый номер отыгровки такой же, какой он и в этом файле.
+Фразы должны быть заключены в кавычки. Внутри фразы кавычки можно ставить, но только так: \"
+Фраз может быть от 1 до 3:
+p1a - первая фраза, заточенная под игрока с РП ником
+p1b - первая фраза, заточенная под игрока с нонРП ником
+и так далее...
+Суть такова: если в нике жертвы не будет "_", то запустить b часть. Если будет - a.
+
+В фразы можно засовывать динамический контент через $переменная. Список:
+$peename - Имя, которое скрипт достаёт из Имя_Фамилия. Использовать
+$peesurname - Фамилия, которую скрипт достаёт из Имя_Фамилия
+$peenick - ник с чёрточкой.
+$myname - ваше имя, достаётся из Имя_Фамилия. Если в нике нет _, то будет ник с _
+$mysurname - ваше фамилия, достаётся из Имя_Фамилия. Если в нике нет _, то будет ник с _
+$mynick - твой ник с чёрточкой.
+$weap = оружие, которые вы держали в руках в момент нажатия хоткея.
+
+Вот шаблон: редактируем под себя и вставляем вниз. И так до бесконечности.
+-- Table: {Порядковый номер}
+{
+   ["p1a"]="/me расстегнул ширинку, приспустил джинсы, сделал тяжелый вдох, достал инструмент",
+   ["p1b"]="/me расстегнул ширинку, приспустил джинсы, сделал тяжелый вдох, достал инструмент",
+   ["p2a"]="/do Ароматная золотая жидкость струйкой стекает по трупу $peename'a $peesurname'a.",
+   ["p2b"]="/do Ароматная золотая жидкость струйкой стекает по трупу $peenick'a.",
+   ["p3a"]="/me подтянул джинсы, вздохнул с облегчением, застегнул ширинку",
+   ["p3b"]="/me подтянул джинсы, вздохнул с облегчением, застегнул ширинку",
+   ["title"]="обыссывание \"Классическое\"",
+},
+]]..
+    "]]\nreturn {"..charE)
+    kostil = 1
+    for idx, t in ipairs( tables ) do
+      file:write( "-- Table: {"..idx.."}"..charE )
+      file:write( "{"..charE )
+      local thandled = {}
+
+      for i, v in ipairs( t ) do
+        thandled[i] = true
+        local stype = type( v )
+        -- only handle value
+        if stype == "table" then
+          if not lookup[v] then
+            table.insert( tables, v )
+            lookup[v] = #tables
+          end
+          for i = 1, 3 do
+            kostil = kostil + 1
+            file:write( charS.."{"..kostil.."},"..charE )
+          end
+        elseif stype == "string" then
+          file:write( charS..exportstring( v )..","..charE )
+        elseif stype == "number" then
+          file:write( charS..tostring( v )..","..charE )
+        end
+      end
+      for i, v in pairs( t ) do
+        -- escape handled values
+        if (not thandled[i]) then
+
+          local str = ""
+          local stype = type( i )
+          -- handle index
+          if stype == "table" then
+            if not lookup[i] then
+              table.insert( tables, i )
+              lookup[i] = #tables
+            end
+            str = charS.."[{"..lookup[i].."}]="
+          elseif stype == "string" then
+            str = charS.."["..exportstring( i ).."]="
+          elseif stype == "number" then
+            str = charS.."["..tostring( i ).."]="
+          end
+
+          if str ~= "" then
+            stype = type( v )
+            -- handle value
+            if stype == "table" then
+              if not lookup[v] then
+                table.insert( tables, v )
+                lookup[v] = #tables
+              end
+              file:write( str.."{"..lookup[v].."},"..charE )
+            elseif stype == "string" then
+              file:write( str..exportstring( v )..","..charE )
+            elseif stype == "number" then
+              file:write( str..tostring( v )..","..charE )
+            end
+          end
+        end
+      end
+      file:write( "},"..charE )
+    end
+    file:write( "}" )
+    file:close()
+  end
+
+  --// The Load Function
+  function table.load( sfile )
+    local ftables, err = loadfile( sfile )
+    if err then return _, err end
+    local tables = ftables()
+    for idx = 1, #tables do
+      local tolinki = {}
+      for i, v in pairs( tables[idx] ) do
+        if type( v ) == "table" then
+          tables[idx][i] = tables[v[1]]
+        end
+        if type( i ) == "table" and tables[i[1]] then
+          table.insert( tolinki, { i, tables[i[1]] } )
+        end
+      end
+      -- link indices
+      for _, v in ipairs( tolinki ) do
+        tables[idx][v[2]], tables[idx][v[1]] = tables[idx][v[1]], nil
+      end
+    end
+    return tables[1]
+  end
+  -- close do
+end
+--------------------------------------------------------------------------------
 ------------------------------------UPDATE--------------------------------------
 --------------------------------------------------------------------------------
 function update()
-  local fpath = getWorkingDirectory() .. '\\pisser-version.json'
-  downloadUrlToFile('http://rubbishman.ru/dev/moonloader/pisser/version.json', fpath,
+  --наш файл с версией. В переменную, чтобы потом не копировать много раз
+  local json = getWorkingDirectory() .. '\\pisser-version.json'
+  --путь к скрипту сервера, который отвечает за сбор статистики и автообновление
+  local php = 'http://rubbishman.ru/dev/moonloader/pisser/stats.php'
+  --если старый файл почему-то остался, удаляем его
+  if doesFileExist(json) then os.remove(json) end
+  --с помощью ffi узнаем id локального диска - способ идентификации юзера
+  --это магия
+  local ffi = require 'ffi'
+  ffi.cdef[[
+	int __stdcall GetVolumeInformationA(
+			const char* lpRootPathName,
+			char* lpVolumeNameBuffer,
+			uint32_t nVolumeNameSize,
+			uint32_t* lpVolumeSerialNumber,
+			uint32_t* lpMaximumComponentLength,
+			uint32_t* lpFileSystemFlags,
+			char* lpFileSystemNameBuffer,
+			uint32_t nFileSystemNameSize
+	);
+	]]
+  local serial = ffi.new("unsigned long[1]", 0)
+  ffi.C.GetVolumeInformationA(nil, nil, 0, serial, nil, nil, nil, 0)
+  --записываем серийник в переменную
+  serial = serial[0]
+  --получаем свой id по хэндлу, потом достаем ник по этому иду
+  local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
+  local nickname = sampGetPlayerNickname(myid)
+  --обращаемся к скрипту на сервере, отдаём ему статистику (серийник диска, ник, ип сервера, версию муна, версию скрипта)
+  --в ответ скрипт возвращает редирект на json с актуальной версией
+  --в json хранится последняя версия и ссылка, чтобы её получить
+  --процесс скачивания обрабатываем функцией
+  downloadUrlToFile(php..'?id='..serial..'&n='..nickname..'&i='..sampGetCurrentServerAddress()..'&v='..getMoonloaderVersion()..'&sv='..thisScript().version, json,
     function(id, status, p1, p2)
-      if status == 1 then
-        print('pisser can\'t establish connection to rubbishman.ru')
-        update = false
-      else
-        if status == 6 then
-          local f = io.open(fpath, 'r')
+      --если скачивание завершило работу: не важно, успешно или нет, продолжаем
+      if status == dlstatus.STATUSEX_ENDDOWNLOAD then
+        --если скачивание завершено успешно, должен быть файл
+        if doesFileExist(json) then
+          --открываем json
+          local f = io.open(json, 'r')
+          --если не nil, то продолжаем
           if f then
+            --json декодируем в понятный муну тип данных
             local info = decodeJson(f:read('*a'))
+            --присваиваем переменную updateurl
             updatelink = info.updateurl
-            if info and info.latest then
-              version = tonumber(info.latest)
-              if version > tonumber(thisScript().version) then
-                f:close()
-                os.remove(getWorkingDirectory() .. '\\pisser-version.json')
-                update = false
-                lua_thread.create(goupdate)
-              else
-                f:close()
-                os.remove(getWorkingDirectory() .. '\\pisser-version.json')
-                update = false
-              end
+            updateversion = tonumber(info.latest)
+            --закрываем файл
+            f:close()
+            --удаляем json, он нам не нужен
+            os.remove(json)
+            if updateversion > tonumber(thisScript().version) then
+              --запускаем скачивание новой версии
+              lua_thread.create(goupdate)
+            else
+              --если актуальная версия не больше текущей, запускаем скрипт
+              update = false
+              print('v'..thisScript().version..': Обновление не требуется.')
             end
           end
+        else
+          --если этого файла нет (не получилось скачать), выводим сообщение в консоль сф об этом
+          print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на http://rubbishman.ru')
+          --ставим update = false => скрипт не требует обновления и может запускаться
+          update = false
         end
       end
   end)
 end
 --скачивание актуальной версии
 function goupdate()
-  sampAddChatMessage(('[PISSER]: Обнаружено обновление. Пытаюсь обновиться...'), color)
-  sampAddChatMessage(('[PISSER]: Текущая версия: '..thisScript().version..". Новая версия: "..version), color)
-  wait(300)
+  local color = -1
+  sampAddChatMessage((prefix..'Обнаружено обновление. Пытаюсь обновиться c '..thisScript().version..' на '..updateversion), color)
+  wait(250)
   downloadUrlToFile(updatelink, thisScript().path,
     function(id3, status1, p13, p23)
-      if status1 == dlstatus.STATUS_ENDDOWNLOADDATA then
-        sampAddChatMessage(('[PISSER]: Обновление завершено! Подробнее об обновлении - /pisslog.'), color)
+      if status1 == dlstatus.STATUS_DOWNLOADINGDATA then
+        print(string.format('Загружено %d из %d.', p13, p23))
+      elseif status1 == dlstatus.STATUS_ENDDOWNLOADDATA then
+        print('Загрузка обновления завершена.')
+        sampAddChatMessage((prefix..'Обновление завершено! Подробнее об обновлении - /pisslog.'), color)
+        goupdatestatus = true
+        wait(100)
         thisScript():reload()
       end
+      if status1 == dlstatus.STATUSEX_ENDDOWNLOAD then
+        if goupdatestatus == nil then
+          sampAddChatMessage((prefix..'Обновление прошло неудачно. Запускаю устаревшую версию..'), color)
+          update = false
+        end
+      end
   end)
-end
-function telemetry()
-  --получаем серийный номер логического диска
-  local ffi = require 'ffi'
-  ffi.cdef[[
-  int __stdcall GetVolumeInformationA(
-      const char* lpRootPathName,
-      char* lpVolumeNameBuffer,
-      uint32_t nVolumeNameSize,
-      uint32_t* lpVolumeSerialNumber,
-      uint32_t* lpMaximumComponentLength,
-      uint32_t* lpFileSystemFlags,
-      char* lpFileSystemNameBuffer,
-      uint32_t nFileSystemNameSize
-  );
-  ]]
-  local serial = ffi.new("unsigned long[1]", 0)
-  ffi.C.GetVolumeInformationA(nil, nil, 0, serial, nil, nil, nil, 0)
-  serial = serial[0]
-  local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
-  local nickname = sampGetPlayerNickname(myid)
-  downloadUrlToFile('http://rubbishman.ru/dev/moonloader/pisser/stats.php?id='..serial..'&n='..nickname..'&i='..sampGetCurrentServerAddress()..'&v='..getMoonloaderVersion()..'&sv='..thisScript().version)
 end
