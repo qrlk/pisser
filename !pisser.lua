@@ -3,7 +3,7 @@
 -------------------------------------META---------------------------------------
 --------------------------------------------------------------------------------
 script_name("pisser")
-script_version("3.91")
+script_version("3.92")
 script_author("rubbishman")
 script_description("/pisser")
 --------------------------------------VAR---------------------------------------
@@ -1012,7 +1012,6 @@ function goupdate()
         print('Загрузка обновления завершена.')
         sampAddChatMessage((prefix..'Обновление завершено! Подробнее об обновлении - /pisslog.'), color)
         goupdatestatus = true
-        wait(100)
         thisScript():reload()
       end
       if status1 == dlstatus.STATUSEX_ENDDOWNLOAD then
