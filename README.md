@@ -1,10 +1,11 @@
 # Описание 
 Когда я задротил на Samp-Rp, меня настолько заебывало писать жалобы на всякую дичь, с которой по байкерскому геймплею мне приходилось сталкиваться, что я просто написал скрипт, который ссал по рп на убитого врага, который играл нечестно. Но с течением времени все забили на первоначальное предназначение скрипта и просто начали ссать на всё, что движется.
 
-**Требования:** [CLEO 4.3](http://cleo.li/?lang=ru), [SAMPFUNCS 5.3.3](https://blast.hk/threads/17/), [MoonLoader](https://blast.hk/threads/13305/).  
+**Требования:** [CLEO +](http://cleo.li/?lang=ru), [SAMPFUNCS 5.3.3](https://blast.hk/threads/17/), [MoonLoader](https://blast.hk/threads/13305/).  
 **Активация:** Скрипт активируется автоматом, а настроить его можно в собственной менюшке (/weather или /wat). В скрипте реализовано автообновление (можно отключить в настройках).
 
-**Автор:** [rubbishman (James_Bond / Phil_Coulson)](http://rubbishman.ru/samp).
+**Автор:** [qrlk (James_Bond / Phil_Coulson)](http://rubbishman.ru/samp).  
+**Обсуждение в группе VK:** [ссылка](https://vk.com/topic-168860334_38597263).
 
 # Функции
 
@@ -15,7 +16,7 @@
 * Скрипт автоматически создаёт скрины в отдельной папке "pisser" с именем типа "Franchesko_Rivera-17.12.05-18-22-30.png". При создании скрина идет проверка, видно ли игрока на экране. Можно отключить.
 
 # Скриншоты
-![https://i.imgur.com/VePFQZW.jpg?1](https://i.imgur.com/VePFQZW.jpg?1)  
+![https://i.imgur.com/329NMWr.png](https://i.imgur.com/329NMWr.png)  
 ![https://i.imgur.com/yUrQQwI.jpg](https://i.imgur.com/yUrQQwI.jpg)  
 ![https://i.imgur.com/Z2UignT.jpg](https://i.imgur.com/Z2UignT.jpg)   
 ![https://i.imgur.com/VF2B0bT.jpg](https://i.imgur.com/VF2B0bT.jpg)   
