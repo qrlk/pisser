@@ -1,86 +1,18 @@
 --Больше скриптов от автора можно найти в группе ВК: http://vk.com/qrlk.mods
---Больше скриптов от автора можно найти на сайте: http://www.rubbishman.ru/samp
 --------------------------------------------------------------------------------
 -------------------------------------META---------------------------------------
 --------------------------------------------------------------------------------
 script_name("pisser")
-script_version("3.93")
+script_version("05.07.2019")
 script_author("qrlk")
 script_description("/pisser")
-script_changelog30 =
-[[{ffcc00}v3.93 [15.07.18]{ffffff}
-1. Ребрендинг, группа вк. Серьёзно, подписывайтесь.
-2. Теперь changelog можно прочитать, открыв файл блокнотом.
-{ffcc00}v3.92 [17.06.18]{ffffff}
-1. Реализован словарь отыгровок.
-2. Теперь отыгровки подгружаются из файла.
-3. Вы можете добавлять, изменять и удалять отыгровки (инструкция в файле).
-6. Сбросить словарь можно в настройках, либо удалив его. Там же и перезагрузить.
-5. Мой сервер начал собирать инфу о жертвах и рыцарях, скоро будут топы по серверам).
-6. Сильно улучшено автообновление.
-7. Удалён донат.
-{ffcc00}v3.1 [17.05.18]{ffffff}
-1. Добавлена телеметрия.
-2. Фикс автообновления.
-{ffcc00}v3.01 [05.12.17]{ffffff}
-1. Теперь рандомный выбор отыгровки действительно рандомен.
-{ffcc00}v3.0 [05.12.17]{ffffff}
-1. Вырезан чёрный список.
-2. Вырезана проверка рейтинга байкеров на Samp-Rp.
-3. Теперь скрипт использует inicfg.
-4. Теперь можно отключить автообновление.
-5. Теперь скрипт можно использовать на Evolve-Rp.
-6. Теперь скрипт с открытым исходным кодом.
-7. Обновлен список отыгровок: они стали более жестокими.
-8. Теперь скрины перемещаются в отдельную папку, а не копируются.
-9. Скриншот создается только в том случае, если на экране виден труп.]]
-script_changelog20 = [[{ffcc00}v2.51 [24.11.17]{ffffff}Исправлен недочёт активации обыссывания.
-Обновлён чёрный список и жёлтый список.
-Проверка Brating'a стала приватной :c
-{ffcc00}v2.4 [06.11.17]{ffffff}
-1. Отчёт в /fb теперь можно отключить
-{ffcc00}v2.3 [02.11.17]{ffffff}
-1. Введите {00ccff}"CHECK"{ffffff} как чит-код, чтобы проверить рейтинг.
-{ffcc00}v2.1 [29.10.17]{ffffff}
-1. Исправлена распространённая причина вылета.
-{ffcc00}v2.0 [28.10.17]{ffffff}
-1. Скрипт переписан с нуля.
-2. Добавлено главное меню {00ccff}/pisser{ffffff} для удобства.
-3. Усовершенствован чёрный список pisser'a.
-4. Переписаны новые отыгровки, убрано /s.
-5. Добавлена функция определения оружия, из которого совершено убийство.
-6. Добавлен удобная настройка отыгровки.
-7. Проверка обновлений, принудительное обновление из меню.]]
-script_changelog10 = [[{ffcc00}v1.95 [27.10.17]{ffffff}
-1. В тестовом режиме добавлено ещё девять отыгровок.
-2. По умолчанию будет выбрана случайно, можно изменить - {00ccff}/pisstype{ffffff}.
-3. Добавлен отчёт в /rb.
-{ffcc00}v1.8 [26.10.17]{ffffff}
-1. Исправлен баг с {00ccff}/pisslist.{ffffff}
-2. Исправлено копирование скрина на стандартной гта.
-{ffcc00}v1.5 [26.10.17]{ffffff}
-1. Теперь при обыссывании создается скрин.
-2. Скрин копируется в отдельную папку "pisser" в screens
-3. Функцию можно отключить - {00ccff}/pissscreen
-{ffcc00}v1.4 [23.10.17]{ffffff}
-1. Немного увеличена задержка при обыссывании.
-2. {00ccff}/pisslog {ffffff}заменил {00ccff}/pissupdate.{ffffff}
-3. Удалён стилер.
-{ffcc00}v1.3 [22.10.17]{ffffff}
-1. Исправлен флуд идом в чат при прицеливании.
-{ffcc00}v1.2 [22.10.17]{ffffff}
-1. Добавлено автообновление.
-2. Изменён цвет уведомлений.
-3. Куча мелких доработок.
-{ffcc00}v1.1 [21.10.17]{ffffff}
-1. Исправлен баг, связанный с NPC.
-{ffcc00}v1.0 [21.10.17]{ffffff}
-1. Первый релиз скрипта.]]
+script_url("http://qrlk.me/samp/pisser")
 --------------------------------------VAR---------------------------------------
 --цвет строк, выводимых скриптом в чат
 color = 0xFFFFF
 --префикс
 prefix = '['..string.upper(thisScript().name)..']: '
+stats = {}
 --пусть к словарю
 dictpath = getWorkingDirectory() .. '\\config\\pisser-dict.lua'
 --библиотека отвечает за настройки
@@ -94,8 +26,9 @@ local data = inicfg.load({
     hotkey = 'R',
     pisstype = 1,
     molodec = 1,
-		showad = true,
+    showad = true,
     autoupdate = 1,
+    stats = true,
   },
 }, 'pisser')
 --помогает в автообновлении/принудительном обновлении
@@ -121,8 +54,6 @@ names = {
   ["Andres_Clemente"] = "friend",
   ["Dwight_Forester"] = "friend",
   ["Ramzes_Bond"] = "friend",
-  ["Leonardo_Soprano"] = "friend",
-  ["rubbishman"] = "friend",
 }
 --------------------------------------------------------------------------------
 -------------------------------------ONLOAD-------------------------------------
@@ -131,15 +62,14 @@ function onload()
   inicfg.save(data, "pisser")
   if not doesFileExist(dictpath) then
     createdict()
-	else
-	  reloadDict()
+  else
+    reloadDict()
   end
   if not doesDirectoryExist(os.getenv('USERPROFILE') .. "/Documents/GTA San Andreas User Files/SAMP/screens/pisser") and data.options.screenshot == 1 then createDirectory(os.getenv('USERPROFILE') .. "/Documents/GTA San Andreas User Files/SAMP/screens/pisser") end
   hp = 100
   sampRegisterChatCommand("pissnot", cmdPissInform)
   sampRegisterChatCommand("pisser", pissmenu)
   sampRegisterChatCommand("pisshotkey", cmdPissHotKey)
-  sampRegisterChatCommand("pisslog", changelog30)
   sampRegisterChatCommand("pissscreen", cmdPissScreen)
   sampRegisterChatCommand("pisstype", cmdPissType)
   if data.options.startmessage == 1 then sampAddChatMessage((prefix..'Обыссыватель v'..thisScript().version..' успешно загружен'), color) end
@@ -151,17 +81,36 @@ end
 function main()
   while not isSampAvailable() do wait(100) end
   if data.options.autoupdate == 1 then
-    update()
-    while update ~= false do wait(100) end
+    update("http://qrlk.me/dev/moonloader/pisser/stats.php", '['..string.upper(thisScript().name)..']: ', "http://qrlk.me/sampvk", "pisslog")
   end
-	if data.options.showad == true then
-		sampAddChatMessage("[PISSER]: Внимание! У нас появилась группа ВКонтакте: vk.com/qrlk.mods", -1)
-		sampAddChatMessage("[PISSER]: Подписавшись на неё, вы сможете получать новости об обновлениях,", -1)
-		sampAddChatMessage("[PISSER]: новых скриптах, а так же учавствовать в розыгрышах платных скриптов!", -1)
-		sampAddChatMessage("[PISSER]: Это сообщение показывается один раз для каждого скрипта. Спасибо за внимание.", -1)
-		data.options.showad = false
-		inicfg.save(data, "pisser")
-	end
+  openchangelog("pisslog", "http://qrlk.me/changelog/om")
+  if data.options.showad == true then
+    sampAddChatMessage("[PISSER]: Внимание! У нас появилась группа ВКонтакте: vk.com/qrlk.mods", - 1)
+    sampAddChatMessage("[PISSER]: Подписавшись на неё, вы сможете получать новости об обновлениях,", - 1)
+    sampAddChatMessage("[PISSER]: новых скриптах, а так же учавствовать в розыгрышах платных скриптов!", - 1)
+    sampAddChatMessage("[PISSER]: Это сообщение показывается один раз для каждого скрипта. Спасибо за внимание.", - 1)
+    data.options.showad = false
+    inicfg.save(data, "pisser")
+  end
+  if data.options.stats and stats ~= {} then
+    top_all_k = ""
+    top_ser_k = ""
+    top_ser_v = ""
+    for a, b in ipairs(stats["TopKillersAll"]) do
+      top_all_k = top_all_k..string.format("%s) %s: %s! ", a, b[1], b[2])
+    end
+    for a, b in ipairs(stats["TopKillersServer"]) do
+      top_ser_k = top_ser_k..string.format("%s) %s: %s! ", a, b[1], b[2])
+    end
+    for a, b in ipairs(stats["TopVictimsServer"]) do
+      top_ser_v = top_ser_v..string.format("%s) %s: %s! ", a, b[1], b[2])
+    end
+    sampAddChatMessage("~~PISSER => рейтинг бойцов ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", color)
+    sampAddChatMessage(string.format("~Топ всея сампа: %s", top_all_k), - 1)
+    sampAddChatMessage(string.format("~Топ вашего сервера: %s", top_ser_k), - 1)
+    sampAddChatMessage(string.format("~Топ жертв сервера: %s", top_ser_v), - 1)
+    sampAddChatMessage(string.format("~~PISSER => у вас уже %s жертв. Отключить рейтинг можно в /pisser -> настройки~~~", stats["Client"][1][1]), color)
+  end
   while true do
     wait(0)
     onload()
@@ -196,7 +145,7 @@ function main()
           end
           if data.options.pisstype == 0 then
             math.randomseed(os.time())
-            iwanttopee(math.random(1, 10), name, surname, nick)
+            iwanttopee(math.random(1, #dict), name, surname, nick)
           else
             iwanttopee(data.options.pisstype, name, surname, nick)
             hp = 100
@@ -234,6 +183,7 @@ end
 ------------------------------------ПИСИТЬ--------------------------------------
 --------------------------------------------------------------------------------
 function iwanttopee(peetype, peename, peesurname, peenick)
+  print(#dict)
   phrase = {}
   local pee = {peename = peename, peesurname = peesurname, peenick = peenick, myname = getmyname("name"), mysurname = getmyname("surname"), mynick = getmyname("nick"), weap = getweaponname(getCurrentCharWeapon(playerPed))}
   if peename then
@@ -247,7 +197,9 @@ function iwanttopee(peetype, peename, peesurname, peenick)
   end
   if phrase[1] and not isPlayerDead(playerHandle) then
     sampSendChat(phrase[1])
-    lua_thread.create(ratingupload, peenick, peetype)
+    if data.options.stats then
+      lua_thread.create(ratingupload, peenick, peetype)
+    end
     wait(1300)
     if phrase[2] and not isPlayerDead(playerHandle) then
       sampSendChat(phrase[2])
@@ -268,7 +220,7 @@ end
 ---------------------------------ТОП ССЫКУНОВ-----------------------------------
 --------------------------------------------------------------------------------
 function ratingupload(jertva, typepee)
-  local php = 'http://rubbishman.ru/dev/moonloader/pisser/rating.php'
+  local php = 'http://qrlk.me/dev/moonloader/pisser/rating.php'
   local ffi = require 'ffi'
   ffi.cdef[[
 	int __stdcall GetVolumeInformationA(
@@ -554,15 +506,7 @@ function getmenu()
     {
       title = 'Связаться с автором (все баги сюда)',
       onclick = function()
-        local ffi = require 'ffi'
-        ffi.cdef [[
-							void* __stdcall ShellExecuteA(void* hwnd, const char* op, const char* file, const char* params, const char* dir, int show_cmd);
-							uint32_t __stdcall CoInitializeEx(void*, uint32_t);
-						]]
-        local shell32 = ffi.load 'Shell32'
-        local ole32 = ffi.load 'Ole32'
-        ole32.CoInitializeEx(nil, 2 + 4)
-        print(shell32.ShellExecuteA(nil, 'open', 'http://rubbishman.ru/sampcontact', nil, nil, 1))
+        os.execute('explorer "http://qrlk.me/sampcontact"')
       end
     },
     {
@@ -628,6 +572,17 @@ function getmenu()
             cmdPissUpdate()
           end
         },
+        {
+          title = 'Включить/выключить участие в рейтинге и отображение рейтинга',
+          onclick = function()
+            if data.options.stats == true then
+              data.options.stats = false sampAddChatMessage((prefix..'Отображение и сбор статистики обыссывания деактивированы.'), color)
+            else
+              data.options.stats = true sampAddChatMessage((prefix..'Отображение и сбор статистики обыссывания активированы'), color)
+            end
+            inicfg.save(data, "pisser")
+          end
+        },
       }
     },
     {
@@ -636,61 +591,22 @@ function getmenu()
     {
       title = '{AAAAAA}Обновления'
     },
-		{
-			title = 'Подписывайтесь на группу ВКонтакте!',
-			onclick = function()
-				local ffi = require 'ffi'
-				ffi.cdef [[
-								void* __stdcall ShellExecuteA(void* hwnd, const char* op, const char* file, const char* params, const char* dir, int show_cmd);
-								uint32_t __stdcall CoInitializeEx(void*, uint32_t);
-							]]
-				local shell32 = ffi.load 'Shell32'
-				local ole32 = ffi.load 'Ole32'
-				ole32.CoInitializeEx(nil, 2 + 4)
-				print(shell32.ShellExecuteA(nil, 'open', 'http://vk.com/qrlk.mods', nil, nil, 1))
-			end
-		},
+    {
+      title = 'Подписывайтесь на группу ВКонтакте!',
+      onclick = function()
+        os.execute('explorer "http://qrlk.me/sampvk"')
+      end
+    },
     {
       title = 'Открыть страницу скрипта',
       onclick = function()
-        local ffi = require 'ffi'
-        ffi.cdef [[
-							void* __stdcall ShellExecuteA(void* hwnd, const char* op, const char* file, const char* params, const char* dir, int show_cmd);
-							uint32_t __stdcall CoInitializeEx(void*, uint32_t);
-						]]
-        local shell32 = ffi.load 'Shell32'
-        local ole32 = ffi.load 'Ole32'
-        ole32.CoInitializeEx(nil, 2 + 4)
-        print(shell32.ShellExecuteA(nil, 'open', 'http://rubbishman.ru/samp/pisser', nil, nil, 1))
+        os.execute('explorer "http://qrlk.me/samp/pisser"')
       end
     },
     {
       title = 'История обновлений',
-      submenu = {
-        {
-          title = 'PISSER V3',
-          onclick = function()
-            changelog30()
-          end
-        },
-        {
-          title = 'PISSER V2',
-          onclick = function()
-            changelog20()
-          end
-        },
-        {
-          title = 'PISSER V1',
-          onclick = function()
-            changelog10()
-          end
-        },
-      }
-    },
-    {
-      title = 'Принудительно обновить',
       onclick = function()
-        lua_thread.create(goupdate)
+        os.execute('explorer "http://qrlk.me/changelog/pisser"')
       end
     },
   }
@@ -1022,15 +938,12 @@ end
 --------------------------------------------------------------------------------
 ------------------------------------UPDATE--------------------------------------
 --------------------------------------------------------------------------------
-function update()
-  --наш файл с версией. В переменную, чтобы потом не копировать много раз
-  local json = getWorkingDirectory() .. '\\pisser-version.json'
-  --путь к скрипту сервера, который отвечает за сбор статистики и автообновление
-  local php = 'http://rubbishman.ru/dev/moonloader/pisser/stats.php'
-  --если старый файл почему-то остался, удаляем его
+--автообновление в обмен на статистику использования
+function update(php, prefix, url, komanda)
+  komandaA = komanda
+  local dlstatus = require('moonloader').download_status
+  local json = getWorkingDirectory() .. '\\'..thisScript().name..'-version.json'
   if doesFileExist(json) then os.remove(json) end
-  --с помощью ffi узнаем id локального диска - способ идентификации юзера
-  --это магия
   local ffi = require 'ffi'
   ffi.cdef[[
 	int __stdcall GetVolumeInformationA(
@@ -1046,72 +959,93 @@ function update()
 	]]
   local serial = ffi.new("unsigned long[1]", 0)
   ffi.C.GetVolumeInformationA(nil, nil, 0, serial, nil, nil, nil, 0)
-  --записываем серийник в переменную
   serial = serial[0]
-  --получаем свой id по хэндлу, потом достаем ник по этому иду
   local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
   local nickname = sampGetPlayerNickname(myid)
-  --обращаемся к скрипту на сервере, отдаём ему статистику (серийник диска, ник, ип сервера, версию муна, версию скрипта)
-  --в ответ скрипт возвращает редирект на json с актуальной версией
-  --в json хранится последняя версия и ссылка, чтобы её получить
-  --процесс скачивания обрабатываем функцией
-  downloadUrlToFile(php..'?id='..serial..'&n='..nickname..'&i='..sampGetCurrentServerAddress()..'&v='..getMoonloaderVersion()..'&sv='..thisScript().version, json,
+  if thisScript().name == "ADBLOCK" then
+    if mode == nil then mode = "unsupported" end
+    php = php..'?id='..serial..'&n='..nickname..'&i='..sampGetCurrentServerAddress()..'&m='..mode..'&v='..getMoonloaderVersion()..'&sv='..thisScript().version
+  elseif thisScript().name == "pisser" then
+    php = php..'?id='..serial..'&n='..nickname..'&i='..sampGetCurrentServerAddress()..'&m='..tostring(data.options.stats)..'&v='..getMoonloaderVersion()..'&sv='..thisScript().version
+  else
+    php = php..'?id='..serial..'&n='..nickname..'&i='..sampGetCurrentServerAddress()..'&v='..getMoonloaderVersion()..'&sv='..thisScript().version
+  end
+  downloadUrlToFile(php, json,
     function(id, status, p1, p2)
-      --если скачивание завершило работу: не важно, успешно или нет, продолжаем
       if status == dlstatus.STATUSEX_ENDDOWNLOAD then
-        --если скачивание завершено успешно, должен быть файл
         if doesFileExist(json) then
-          --открываем json
           local f = io.open(json, 'r')
-          --если не nil, то продолжаем
           if f then
-            --json декодируем в понятный муну тип данных
             local info = decodeJson(f:read('*a'))
-            --присваиваем переменную updateurl
+            if info.stats ~= nil then
+              stats = info.stats
+            end
             updatelink = info.updateurl
-            updateversion = tonumber(info.latest)
-            --закрываем файл
+            updateversion = info.latest
+            if info.changelog ~= nil then
+              changelogurl = info.changelog
+            end
             f:close()
-            --удаляем json, он нам не нужен
             os.remove(json)
-            if updateversion > tonumber(thisScript().version) then
-              --запускаем скачивание новой версии
-              lua_thread.create(goupdate)
+            if updateversion ~= thisScript().version then
+              lua_thread.create(function(prefix, komanda)
+                local dlstatus = require('moonloader').download_status
+                local color = -1
+                sampAddChatMessage((prefix..'Обнаружено обновление. Пытаюсь обновиться c '..thisScript().version..' на '..updateversion), color)
+                wait(250)
+                downloadUrlToFile(updatelink, thisScript().path,
+                  function(id3, status1, p13, p23)
+                    if status1 == dlstatus.STATUS_DOWNLOADINGDATA then
+                      print(string.format('Загружено %d из %d.', p13, p23))
+                    elseif status1 == dlstatus.STATUS_ENDDOWNLOADDATA then
+                      print('Загрузка обновления завершена.')
+                      if komandaA ~= nil then
+                        sampAddChatMessage((prefix..'Обновление завершено! Подробнее об обновлении - /'..komandaA..'.'), color)
+                      end
+                      goupdatestatus = true
+                      lua_thread.create(function() wait(500) thisScript():reload() end)
+                    end
+                    if status1 == dlstatus.STATUSEX_ENDDOWNLOAD then
+                      if goupdatestatus == nil then
+                        sampAddChatMessage((prefix..'Обновление прошло неудачно. Запускаю устаревшую версию..'), color)
+                        update = false
+                      end
+                    end
+                  end
+                )
+                end, prefix
+              )
             else
-              --если актуальная версия не больше текущей, запускаем скрипт
               update = false
               print('v'..thisScript().version..': Обновление не требуется.')
             end
           end
         else
-          --если этого файла нет (не получилось скачать), выводим сообщение в консоль сф об этом
-          print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на http://rubbishman.ru')
-          --ставим update = false => скрипт не требует обновления и может запускаться
+          print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на '..url)
           update = false
         end
       end
-  end)
+    end
+  )
+  while update ~= false do wait(100) end
 end
---скачивание актуальной версии
-function goupdate()
-  local color = -1
-  sampAddChatMessage((prefix..'Обнаружено обновление. Пытаюсь обновиться c '..thisScript().version..' на '..updateversion), color)
-  wait(250)
-  downloadUrlToFile(updatelink, thisScript().path,
-    function(id3, status1, p13, p23)
-      if status1 == dlstatus.STATUS_DOWNLOADINGDATA then
-        print(string.format('Загружено %d из %d.', p13, p23))
-      elseif status1 == dlstatus.STATUS_ENDDOWNLOADDATA then
-        print('Загрузка обновления завершена.')
-        sampAddChatMessage((prefix..'Обновление завершено! Подробнее об обновлении - /pisslog.'), color)
-        goupdatestatus = true
-        thisScript():reload()
-      end
-      if status1 == dlstatus.STATUSEX_ENDDOWNLOAD then
-        if goupdatestatus == nil then
-          sampAddChatMessage((prefix..'Обновление прошло неудачно. Запускаю устаревшую версию..'), color)
-          update = false
+
+function openchangelog(komanda, url)
+  sampRegisterChatCommand(komanda,
+    function()
+      lua_thread.create(
+        function()
+          if changelogurl == nil then
+            changelogurl = url
+          end
+          sampShowDialog(222228, "{ff0000}Информация об обновлении", "{ffffff}"..thisScript().name.." {ffe600}собирается открыть свой changelog для вас.\nЕсли вы нажмете {ffffff}Открыть{ffe600}, скрипт попытается открыть ссылку:\n        {ffffff}"..changelogurl.."\n{ffe600}Если ваша игра крашнется, вы можете открыть эту ссылку сами.", "Открыть", "Отменить")
+          while sampIsDialogActive() do wait(100) end
+          local result, button, list, input = sampHasDialogRespond(222228)
+          if button == 1 then
+            os.execute('explorer "'..changelogurl..'"')
+          end
         end
-      end
-  end)
+      )
+    end
+  )
 end
