@@ -26,7 +26,6 @@ local data = inicfg.load({
     hotkey = 'R',
     pisstype = 1,
     molodec = 1,
-    showad = true,
     autoupdate = 1,
     stats = true,
   },
@@ -84,14 +83,7 @@ function main()
     update("http://qrlk.me/dev/moonloader/pisser/stats.php", '['..string.upper(thisScript().name)..']: ', "http://qrlk.me/sampvk", "pisslog")
   end
   openchangelog("pisslog", "http://qrlk.me/changelog/om")
-  if data.options.showad == true then
-    sampAddChatMessage("[PISSER]: Внимание! У нас появилась группа ВКонтакте: vk.com/qrlk.mods", - 1)
-    sampAddChatMessage("[PISSER]: Подписавшись на неё, вы сможете получать новости об обновлениях,", - 1)
-    sampAddChatMessage("[PISSER]: новых скриптах, а так же учавствовать в розыгрышах платных скриптов!", - 1)
-    sampAddChatMessage("[PISSER]: Это сообщение показывается один раз для каждого скрипта. Спасибо за внимание.", - 1)
-    data.options.showad = false
-    inicfg.save(data, "pisser")
-  end
+
   if data.options.stats and stats ~= {} then
     top_all_k = ""
     top_ser_k = ""
