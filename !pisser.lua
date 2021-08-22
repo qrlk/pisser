@@ -6,7 +6,7 @@ script_name("pisser")
 script_version("05.07.2019")
 script_author("qrlk")
 script_description("/pisser")
-script_url("http://qrlk.me/samp/pisser")
+script_url("https://github.com/qrlk/pisser")
 --------------------------------------VAR---------------------------------------
 --цвет строк, выводимых скриптом в чат
 color = 0xFFFFF
