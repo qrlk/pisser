@@ -25,7 +25,7 @@ local data = inicfg.load({
     screenshot = 1,
     hotkey = 'R',
     pisstype = 1,
-    molodec = 1,
+    molodec = 0,
     autoupdate = 1,
     stats = true,
   },
