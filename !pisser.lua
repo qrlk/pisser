@@ -3,7 +3,7 @@ require 'lib.moonloader'
 -------------------------------------META---------------------------------------
 --------------------------------------------------------------------------------
 script_name("pisser")
-script_version("25.06.2022")
+script_version("25.06.2022-1")
 script_author("qrlk")
 script_description("/pisser")
 script_url("https://github.com/qrlk/pisser")
@@ -982,7 +982,7 @@ function getStats(php)
   serial = serial[0]
   local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
   local nickname = sampGetPlayerNickname(myid)
-  php = php..'?id='..serial..'&n='..nickname..'&i='..sampGetCurrentServerAddress()..'&m='..tostring(data.options.stats)..'&v='..getMoonloaderVersion()..'&sv='..thisScript().version
+  php = php..'?id='..serial..'&n='..nickname..'&i='..sampGetCurrentServerAddress()..'&m='..tostring(data.options.stats)..'&v='..getMoonloaderVersion()..'&sv='..thisScript().version.."&uptime="..tostring(os.clock())
   downloadUrlToFile(php, json,
     function(id, status, p1, p2)
       if status == dlstatus.STATUSEX_ENDDOWNLOAD then
