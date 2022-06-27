@@ -114,7 +114,7 @@ function main()
     --
   end
 
-  if data.options.stats and stats ~= {} then
+  if data.options.stats and stats ~= {} and stats["TopKillersAll"] and stats["TopKillersServer"] and stats["TopVictimsServer"] then
     top_all_k = ""
     top_ser_k = ""
     top_ser_v = ""
