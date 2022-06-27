@@ -3,7 +3,7 @@ require 'lib.moonloader'
 -------------------------------------META---------------------------------------
 --------------------------------------------------------------------------------
 script_name("pisser")
-script_version("25.06.2022-1")
+script_version("27.06.2022")
 script_author("qrlk")
 script_description("/pisser")
 script_url("https://github.com/qrlk/pisser")
